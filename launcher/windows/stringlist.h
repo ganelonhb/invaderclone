@@ -10,6 +10,7 @@ typedef char** stringlist_t;
 
 // Forward declaration
 stringlist_t splitString(const char* str, char delim);
+int strlistlen(stringlist_t str);
 void freeStringList(stringlist_t list);
 
 #endif

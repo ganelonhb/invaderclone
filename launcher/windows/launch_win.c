@@ -53,11 +53,13 @@ int main(int argc, char** argv) {
 
     stringlist_t path = splitString(PATH, ';');
 
-    for (int i = 0; path[i] != NULL; ++i)
+    char* pythonPath = win32FindPython(path);
+
+    if (pythonPath != NULL)
     {
-        printf("%s\n", path[i]);
+        printf("\nFOUND: %s\n", pythonPath);
+        free(pythonPath);
     }
-    printf("%s", PATH);
 
     freeStringList(path);
 

@@ -65,6 +65,18 @@ stringlist_t splitString(const char* str, char delim)
     return stringlist;
 }
 
+int strlistlen(stringlist_t str)
+{
+    int length = 0;
+
+    for(int i = 0; str[i] != NULL; ++i)
+    {
+        ++length;
+    }
+
+    return length;
+}
+
 void freeStringList(stringlist_t list)
 {
     // Loop through the strings until we find a pointer that is null.

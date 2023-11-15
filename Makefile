@@ -21,5 +21,7 @@ windows:
 
 clean:
 	rm -rf ./data/env
+	rm -rf ./data/videogame/__pycache__
+	rm -rf ./data/videogame/videogame.egg-info
 	rm "InvaderClone"
 	rm "InvaderClone.exe"
