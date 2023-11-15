@@ -1,0 +1,9 @@
+- Asteroids come down from the top of the screen (like bullets)
+- Chance of asteroid is determined by difficulty_mod
+- Asteroid is rendered beneath the enemies (in case the theme wants to make it look like it's on the ground)
+
+- Allow modification of things like bullet speed, starting lives, splash text, etc
+
+- name input scene
+
+- GUI theme creator???
