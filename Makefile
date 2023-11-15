@@ -1,11 +1,23 @@
+# ----------------------------------------------------
+
+GCC	= gcc
+WCC	= x86_64-w64-mingw32-gcc
+LFL	= ./launcher/linux/*.c
+WFL	= ./launcher/windows/*.c
+LFLGS	= -O2 -DNDEBUG -s
+LSYS	= -DCOMPILE_MODE=1
+NAME	= InvaderClone
+
+# ----------------------------------------------------
+
 portable_linux:
-	gcc launch.c -o "InvaderClone"
+	$(GCC) $(LFL) -o $(NAME)
 
 system_linux:
-	gcc launch.c -o "InvaderClone" -DCOMPILE_MODE=1
+	$(GCC) $(LFL) -o $(NAME) $(LSYS)
 
 windows:
-	x86_64-w64-mingw32-gcc launch_win.c -o "InvaderClone.exe"
+	 $(WCC) $(WFL) -o $(NAME).exe
 
 clean:
 	rm -rf ./data/env

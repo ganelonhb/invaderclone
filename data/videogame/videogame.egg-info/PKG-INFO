@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: videogame
+Version: 0.1
+Summary: A package to support writing games with PyGame
+Home-page: https://github.com/cpsc-summer-2023/cpsc-386-05-invaders-zworcester
+Author: Zachary Worceseter
+Author-email: zworcester0@csu.fullerton.edu
