@@ -37,8 +37,6 @@ char* win32FindPython(stringlist_t list)
             ++p;
         }
 
-        printf("%s\n", str);
-
         HANDLE fileHandle = FindFirstFileA(
             str,
             &dummy

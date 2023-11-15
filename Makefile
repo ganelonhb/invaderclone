@@ -19,6 +19,9 @@ system_linux:
 windows:
 	 $(WCC) $(WFL) -o $(NAME).exe
 
+debug_make_to_vm:
+	$(WCC) $(WFL) -o /home/donquixote/VMs/windows/$(NAME).exe
+
 clean:
 	rm -rf ./data/env
 	rm -rf ./data/videogame/__pycache__

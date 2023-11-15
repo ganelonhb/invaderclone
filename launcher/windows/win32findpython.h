@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <fileapi.h>
 #include <stdbool.h>
+#include <string.h>
 #include <errhandlingapi.h>
 
 #include "stringlist.h"
