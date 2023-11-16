@@ -25,7 +25,7 @@ int manylinuxNotify(const char* title, const char* body, bool question)
 	if (kdialog)
 	{
 		const int kdialogStringLength = (question ? 30 : 31)  + lenTitle + lenBody;
-		char* kdialogString = (char*)malloc(kdialogStringLength * sizeof(char));
+		char* kdialogString = (char*)calloc(kdialogStringLength * sizeof(char));
 		if (question)
 		{
 			sprintf(kdialogString, "kdialog --title \"%s\" --yesno \"%s\"", title, body);
@@ -43,7 +43,7 @@ int manylinuxNotify(const char* title, const char* body, bool question)
 	else if (yad)
 	{
 		const int yadStringLength = (question ? 54 : 38) + lenTitle + lenBody;
-		char* yadString = (char*)malloc(yadStringLength * sizeof(char));
+		char* yadString = (char*)calloc(yadStringLength * sizeof(char));
 
 		if (question)
 		{
@@ -62,7 +62,7 @@ int manylinuxNotify(const char* title, const char* body, bool question)
 	else if (zenity)
 	{
 		const int zenityStringLength = (question ? 39 : 35) + lenTitle + lenBody;
-		char* zenityString = (char*)malloc(zenityStringLength * sizeof(char));
+		char* zenityString = (char*)calloc(zenityStringLength * sizeof(char));
 
 		if (question)
 		{

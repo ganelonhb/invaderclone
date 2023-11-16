@@ -20,8 +20,7 @@ char* win32FindPython(stringlist_t list)
 
         int lastCharDelim = list[i][strLen - 1] == '\\' ? 12 : 11;
         int numberBytes = (strLen + lastCharDelim) * sizeof(char);
-        char* str = (char*)malloc(numberBytes);
-        memset(str, '\0', numberBytes);
+        char* str = (char*)calloc(numberBytes);
 
         for (int j = 0; j < strLen; ++j)
         {

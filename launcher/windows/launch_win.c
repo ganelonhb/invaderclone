@@ -80,6 +80,10 @@ int main(int argc, char** argv) {
 
                 return 0;
             }
+
+            // construct a string to execute the creation of an env
+
+
         }
 
         free(pythonPath);
