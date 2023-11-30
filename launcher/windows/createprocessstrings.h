@@ -4,8 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-char* createVenvStr();
-char* installDepsStr();
-char* execStr(int argv, char** argc);
+int createVenv(char* pydir, char* venvdir);
+int installDeps(char* venvpydir);
+int exec(char* venvdir,int argv, char** argc);
 
 #endif
