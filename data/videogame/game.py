@@ -168,7 +168,7 @@ class InvaderClone(VideoGame):
                         scr[0],
                         scr[1],
                         scr[2],
-                        soundtrack=self._theme.get("gameover_music", assets.FALLBACK_SND),
+                        soundtrack=self._theme.get("leaderboard_music", assets.FALLBACK_SND),
                         skin=self._skin
                         )
                     difficulty = 1.0

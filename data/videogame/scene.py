@@ -1,6 +1,6 @@
 """Scene objects for making games with PyGame."""
 
-from random import randint, choice
+from random import randint, choice, randrange
 from sys import platform
 from os import path, makedirs
 from datetime import datetime
@@ -17,6 +17,7 @@ from . import bullets
 from .asteroid import Asteroid
 from . import leaderboard
 from . import powerup
+from .obstacle import Obstacle
 
 UNIX_SYSTEMS = ["aix", "darwin", "freebsd", "linux", "openbsd"]
 WINDOWS_SYSTEMS = ["win32", "win64", "cygwin", "msys", "nt"]
@@ -515,6 +516,7 @@ class ViolentShooterKillerScene(Scene):
         self._bullets = []
         self._powerups = []
         self._enemies = []
+        self._obstacles = []
         self._speedupswitch = 4
         self._inc_pos_idx = False
 
@@ -538,8 +540,8 @@ class ViolentShooterKillerScene(Scene):
         ast1_p = pygame.math.Vector2((ast1_x, ast1_y))
         ast2_p = pygame.math.Vector2((ast2_x, ast2_y))
 
-        self._asteroid1 = Asteroid(ast1_p, self._theme.get("ast1", assets.FALLBACK_IMG))
-        self._asteroid2 = Asteroid(ast2_p, self._theme.get("ast2", assets.FALLBACK_IMG))
+        # self._asteroid1 = Asteroid(ast1_p, self._theme.get("ast1", assets.FALLBACK_IMG))
+        # self._asteroid2 = Asteroid(ast2_p, self._theme.get("ast2", assets.FALLBACK_IMG))
         self._score_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), 16)
         self._score_surface = pygame.font.Font.render(
             self._score_font, f"Score: {score}", True, rgbcolors.ghostwhite
@@ -618,10 +620,30 @@ class ViolentShooterKillerScene(Scene):
         if not self._lives:
             self._is_valid = False
 
+    def spawn_obstacle(self):
+        """spawn an obstacle that descends from the top of the screen"""
+
+        obstacle_choice = randrange(0, self._theme.num_obstacles())
+        img = pygame.image.load(self._theme.get_obstacle(obstacle_choice))
+
+        (width, height) = self._screen.get_size()
+
+        xpos = randint(0, width - img.get_width())
+        ypos = 0 - img.get_height()
+
+        position = pygame.math.Vector2(xpos, ypos)
+        obstacle_target = position - pygame.math.Vector2(0, -(height + img.get_height()))
+        self._obstacles.append(
+            Obstacle(
+                position,
+                obstacle_target,
+                min(10 * self._difficulty_mod, 25),
+                self._theme.get_obstacle(obstacle_choice)
+                )
+            )
+
     def spawn_powerup(self):
         """spawn a powerup with the specified max time"""
-
-        print("A powerup is supposed to be spawned")
 
         powerups = [
             (powerup.BurstShotPowerup, 15, "burst")
@@ -681,32 +703,59 @@ class ViolentShooterKillerScene(Scene):
         )
 
     def _make_enemies(self):
+        numem = self._theme.num_enemies()
+
         enemy_size = self._screen.get_height() // 32
 
         gutter_width = enemy_size // 8
         width, _ = self._screen.get_size()
         x_step = gutter_width + enemy_size
         y_step = gutter_width + enemy_size
-        enemies_per_row = self._num_cols # (width // x_step) - 8
-        num_rows = self._num_rows
+        enemies_per_row = self._num_cols + int(self._difficulty_mod) - 1
+        num_rows = self._num_rows + int(self._difficulty_mod) - 1
         print(f"There will be {num_rows} rows and {enemies_per_row} columns")
-        self._enemies = [
-            EnemyShip(
-                pygame.math.Vector2(
-                    x_step - enemy_size + (j * x_step), y_step + enemy_size + (i * y_step)
-                ),
-                self._screen,
-                self._theme.get("neko", assets.FALLBACK_IMG),
-                5 * self._difficulty_mod
-            )
-            for i in range(num_rows)
-            for j in range(enemies_per_row)
-        ]
+
+        enemy_kind = 0
+
+        for i in range(num_rows):
+            for j in range(enemies_per_row):
+               self._enemies.append(EnemyShip(
+                    pygame.math.Vector2(
+                        x_step - enemy_size + (j * x_step), y_step + enemy_size + (i * y_step)
+                    ),
+                    self._screen,
+                    self._theme.get_enemy(enemy_kind),
+                    5 * self._difficulty_mod
+                ))
+            if (enemy_kind + 1) < numem:
+                enemy_kind += 1
+
 
         for enemy in self._enemies:
             target_x = enemy.position.x + self._go
             target_y = enemy.position.y
             enemy.target = pygame.math.Vector2(target_x, target_y)
+
+    def kill_player1(self):
+        Explosion(self._player, self._theme.get("explosion", assets.FALLBACK_IMG), self._player.width)
+        self._explosion_sound.play()
+        self._player.position = pygame.math.Vector2(
+            self._width // 2, self._height - 100
+        )
+        self._player.invincible_clock()
+        self.update_score(int(-100 * self._difficulty_mod))
+        self.update_lives(-1)
+
+    def kill_player2(self):
+        Explosion(self._player, self._theme.get("explosion", assets.FALLBACK_IMG), self._player.width)
+        self._explosion_sound.play()
+        self._player2.position = pygame.math.Vector2(
+            self._width // 2, self._height - 100
+        )
+        self._player2.invincible_clock()
+        # self.update_score(int(-100 * self._difficulty_mod))
+        # self.update_lives(-1)
+
 
     # pylint: disable=too-many-statements too-many-branches
     def update_scene(self):
@@ -720,9 +769,25 @@ class ViolentShooterKillerScene(Scene):
 
         super().update_scene()
 
+        if randint(0, 10001) < min(40 * self._difficulty_mod, 6667):
+            print("spawning")
+            self.spawn_obstacle()
+
         self._player.update()
         if self._player2:
             self._player2.update()
+
+        for obstacle in self._obstacles:
+            obstacle.update()
+            if obstacle.should_die() and obstacle in self._powerups:
+                self.obstacles.remove(obstacle)
+            if (
+                obstacle.rect.colliderect(self._player.rect)
+                and not self._player.invincible
+                ):
+                self.kill_player1()
+            if self._player2 and obstacle.rect.colliderect(self._player2.rect):
+                self.kill_player2()
 
         for bullet in self._bullets:
             bullet.update()
@@ -732,45 +797,28 @@ class ViolentShooterKillerScene(Scene):
                     and not self._player.invincible
                     and isinstance(bullet, bullets.EnemyBullet)
                 ):
-                    Explosion(self._player, self._theme.get("explosion", assets.FALLBACK_IMG), self._player.width)
-                    self._explosion_sound.play()
-                    self._player.position = pygame.math.Vector2(
-                        self._width // 2, self._height - 100
-                    )
-                    self._player.invincible_clock()
-                    self.update_score(-100)
-                    self.update_lives(-1)
+                    self.kill_player1()
                 if (
                     self._player2
                     and bullet.rect.colliderect(self._player2.rect)
                     and not self._player2.invincible
                     and isinstance(bullet, bullets.EnemyBullet)
                 ):
-                    Explosion(self._player, self._theme.get("explosion", assets.FALLBACK_IMG), self._player.width)
-                    self._explosion_sound.play()
-                    self._player2.position = pygame.math.Vector2(
-                        self._width // 2, self._height - 100
-                    )
-                    self._player2.invincible_clock()
-                    # self.update_score(-100)
-                    # self.update_lives(-1)
-                if bullet.rect.colliderect(
-                    self._asteroid1.rect) or bullet.rect.colliderect(
-                    self._asteroid2
-                ):
+                   self.kill_player2()
+                if bullet.rect.collideobjects([obstacle for obstacle in self._obstacles]):
                     if bullet in self._bullets:
                         self._bullets.remove(bullet)
                     if isinstance(bullet, bullets.PlayerBullet):
-                        self.update_score(-25)
+                        self.update_score(int(-25 * self._difficulty_mod))
                     if isinstance(bullet, bullets.PlayerBulletOneThird):
-                        self.update_score(-5)
+                        self.update_score(int(-5 * self._difficulty_mod))
                 if bullet.should_die():
                     if bullet in self._bullets:
                         self._bullets.remove(bullet)
                     if isinstance(bullet, bullets.PlayerBullet):
-                        self.update_score(-50)
+                        self.update_score(int(-50 * self._difficulty_mod))
                     if isinstance(bullet, bullets.PlayerBulletOneThird):
-                        self.update_score(-15)
+                        self.update_score(int(-15 * self._difficulty_mod))
                 else:
                     index = bullet.rect.collidelist(
                         [c.rect for c in self._enemies])
@@ -786,7 +834,7 @@ class ViolentShooterKillerScene(Scene):
 
                         if bullet in self._bullets:
                             self._bullets.remove(bullet)
-                        self.update_score(200)
+                        self.update_score(int(200 * self._difficulty_mod))
                         if not self._enemies:
                             self._is_valid = False
                             return
@@ -969,7 +1017,6 @@ class ViolentShooterKillerScene(Scene):
 
             frame1_y = self._scroll
             frame2_y = self._scroll - space_height
-    #
             self._screen.blit(self._random_space, (1, frame1_y))
             self._screen.blit(self._random_space, (1, frame2_y))
 
@@ -982,12 +1029,14 @@ class ViolentShooterKillerScene(Scene):
             bullet.draw(self._screen)
         for powup in self._powerups:
             powup.draw(self._screen)
+        for obstacle in self._obstacles:
+            obstacle.draw(self._screen)
 
         self._player.draw(self._screen)
         if self._player2:
             self._player2.draw(self._screen)
-        self._asteroid1.draw(self._screen)
-        self._asteroid2.draw(self._screen)
+        # self._asteroid1.draw(self._screen)
+        # self._asteroid2.draw(self._screen)
 
         lives_y = self._score_surface.get_height() + 8
         lives_x = 4

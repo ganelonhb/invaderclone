@@ -17,8 +17,8 @@ def main():
         epilog="For comments, questions, concerns, inquiries, or any other synonyms of those words, contact me at worcesterz@outlook.com."
         )
 
-    parser.add_argument("-r", "--rows", default=8, type=int, help="how many rows of enemies there are (default 8)")
-    parser.add_argument("-c", "--columns", default=8, type=int, help="how many columns of enemies there are (default 8)")
+    parser.add_argument("-r", "--rows", default=4, type=int, help="how many rows of enemies there are (default 5)")
+    parser.add_argument("-c", "--columns", default=12, type=int, help="how many columns of enemies there are (default 9)")
     parser.add_argument("--width", default=1920, type=int, help="window width (default 1920)")
     parser.add_argument("--height", default=1024, type=int, help="window height (default 1024)")
     parser.add_argument("-d", "--difficulty_step", default=5.0, type=float, help="increase the difficulty by this percent every round (default 5.0)")
