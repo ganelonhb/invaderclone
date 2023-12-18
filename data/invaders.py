@@ -26,6 +26,15 @@ def main():
     parser.add_argument("-t", "--theme", default="default", help="change the theme of the game.")
     parser.add_argument("-s", "--disable_stars", action='store_false', help='disable parallax stars effect')
     parser.add_argument("-b", "--enable_background", action='store_true', help='enable a parallax bg effect')
+    parser.add_argument("--bg_speed", type=int, default=6, help='background scroll speed')
+    parser.add_argument("--alt_title", default=None, help="give your game an alternative title on the titlescreen")
+    parser.add_argument("--subtitle1", default="全部のネコ宇宙人を倒す！ 動く：'←'／'→' 撃つ：'SPACE'", help="subtitle 1 text")
+    parser.add_argument("--subtitle2", default="Kill all cat aliens! Move: '←'/'→' Shoot: 'SPACE'", help="subtitle 2 text")
+    parser.add_argument("--press_any_key", default="Press ANY KEY!", help="press any key text")
+    parser.add_argument("--victory", default="VICTORY!", help="victory text")
+    parser.add_argument("--continueyn", default="Continue (Y/N)?", help="continue game text")
+    parser.add_argument("--game_over", default="GAME OVER!", help="game over text")
+
 
     args = parser.parse_args()
 
@@ -39,8 +48,15 @@ def main():
             difficulty_step=args.difficulty_step / 100,
             theme=args.theme,
             stars=args.disable_stars,
-            bg=args.enable_background
-
+            bg=args.enable_background,
+            alttitle=args.alt_title,
+            sub1=args.subtitle1,
+            sub2=args.subtitle2,
+            pak=args.press_any_key,
+            victorytext=args.victory,
+            continuetext=args.continueyn,
+            gameovertext=args.game_over,
+            bg_speed=args.bg_speed
             ).run()
         )
 

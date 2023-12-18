@@ -50,8 +50,9 @@ class Theme:
             "ast1": path.join("images", "asteroid1.png"),
             "ast2": path.join("images", "asteroid2.png"),
             "burst": path.join("images", "burst.png"),
-            "playerbullet" : path.join("images", "playerbullet.png"),
-            "enemybullet" : path.join("images", "enemybullet.png")
+            "playerbullet" : path.join("images", "goodbullet.png"),
+            "enemybullet" : path.join("images", "badbullet.png"),
+            "bg" : path.join("images", "bg.png")
         }
 
         self._enemies = []

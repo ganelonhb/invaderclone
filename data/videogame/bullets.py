@@ -9,14 +9,20 @@ from . import rgbcolors
 class Bullet:
     """Implement a generic bullet"""
 
-    def __init__(self, position, target_position, speed, width=4, height=6, bulletimg=None):
+    def __init__(self, position, target_position, speed, bulletimg=None):
         """Initialize a bullet"""
 
         self._position = pygame.math.Vector2(position)
         self._target_position = pygame.math.Vector2(target_position)
         self._speed = speed
-        self._width = width
-        self._height= height
+        if bulletimg is not None:
+            self._img = pygame.image.load(bulletimg)
+            self._width = self._img.get_width()
+            self._height= self._img.get_height()
+        else:
+            self._img = None
+            self._width = 4
+            self._height = 8
 
     def should_die(self):
         """determine if a bullet should die"""
@@ -52,7 +58,10 @@ class PlayerBullet(Bullet):
     def draw(self, screen):
         """draw a player bullet"""
 
-        pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)
+        if self._img is not None:
+            screen.blit(self._img, self._position)
+        else:
+            pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)
 
 class PlayerBulletOneThird(Bullet):
     """implements a player bullet that costs 1/3rd the price when lost"""
@@ -70,7 +79,10 @@ class PlayerBulletOneThird(Bullet):
     def draw(self, screen):
         """draw a player bullet"""
 
-        pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)
+        if self._img is not None:
+            screen.blit(self._img, self._position)
+        else:
+            pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)
 
 
 class EnemyBullet(Bullet):
@@ -82,25 +94,14 @@ class EnemyBullet(Bullet):
 
         left = self._position.x
         top = self._position.y
-        width = 6
-        height = 6
+        width = self._width
+        height = self._height
         return pygame.Rect(left, top, width, height)
 
     def draw(self, screen):
         """draw an enemy bullet"""
 
-        rect1_left = self._position.x + 2
-        rect1_top = self._position.y
-        rect1_w = 2
-        rect1_h = 6
-
-        rect2_left = self._position.x
-        rect2_top = self._position.y + 1
-        rect2_w = 4
-        rect2_h = 6
-
-        rect1 = pygame.Rect(rect1_left, rect1_top, rect1_w, rect1_h)
-        rect2 = pygame.Rect(rect2_left, rect2_top, rect2_w, rect2_h)
-
-        pygame.draw.rect(screen, rgbcolors.ghostwhite, rect1)
-        pygame.draw.rect(screen, rgbcolors.ghostwhite, rect2)
+        if self._img is not None:
+            screen.blit(self._img, self._position)
+        else:
+            pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)

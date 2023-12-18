@@ -164,7 +164,11 @@ class PolygonTitleScene(PressAnyKeyToExitScene):
         title_size=72,
         background_color=rgbcolors.black,
         soundtrack=None,
-        skin="default"
+        skin="default",
+        alttitle = None,
+        sub1 = "全部のネコ宇宙人を倒す！ 動く：'←'／'→' 撃つ：'SPACE'",
+        sub2 = "Kill all cat aliens! Move: '←'/'→' Shoot: 'SPACE'",
+        pak = "Press ANY KEY!"
     ):
         """Initialize the scene."""
 
@@ -177,28 +181,30 @@ class PolygonTitleScene(PressAnyKeyToExitScene):
         string_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), 18)
         subpixel_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), 14)
 
+
+        TITLE = title if alttitle is None else alttitle
         self._title = pygame.font.Font.render(
             title_font,
-            title,
+            TITLE,
             True,
             title_color)
 
         self._subtitle = pygame.font.Font.render(
             subtitle_font,
-            "全部のネコ宇宙人を倒す！ 動く：'←'／'→' 撃つ：'SPACE'",
+            sub1,
             True,
             rgbcolors.ghostwhite,
         )
 
         self._subtitle_en = pygame.font.Font.render(
             subpixel_font,
-            "Kill all cat aliens! Move: '←'/'→' Shoot: 'SPACE'",
+            sub2,
             True,
             rgbcolors.ghostwhite,
         )
 
         self._press_any_key = pygame.font.Font.render(
-            string_font, "Press ANY KEY!", True, rgbcolors.ghostwhite
+            string_font, pak, True, rgbcolors.ghostwhite
         )
 
         _, height = screen.get_size()
@@ -262,7 +268,9 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         oneups = None,
         background_color=rgbcolors.black,
         soundtrack=None,
-        skin="default"
+        skin="default",
+        victorytext = "VICTORY!",
+        continuetext = "Continue (Y/N)?"
     ):
         """initialize a leaderboard"""
         super().__init__(screne, background_color, soundtrack,skin=skin)
@@ -274,7 +282,7 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         self._oneups = [] if oneups is None else oneups
 
         self._you_win = pygame.font.Font.render(
-            string_font, "VICTORY!", True, rgbcolors.ghostwhite
+            string_font, victorytext, True, rgbcolors.ghostwhite
         )
 
         # pylint: disable=redefined-outer-name
@@ -293,7 +301,7 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         confirm_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), 14)
 
         self._confirm_screen = pygame.font.Font.render(
-            confirm_font, "Continue? y/n", True, rgbcolors.ghostwhite
+            confirm_font, continuetext, True, rgbcolors.ghostwhite
         )
 
     def process_event(self, event):
@@ -377,7 +385,9 @@ class GameOverScene(PressAnyKeyToExitScene):
         score,
         background_color=rgbcolors.black,
         soundtrack=None,
-        skin="default"
+        skin="default",
+        gameovertext = "GAME OVER!",
+        continuetext = "Continue (Y/N)?"
     ):
         """initialize a game over scene"""
 
@@ -392,13 +402,13 @@ class GameOverScene(PressAnyKeyToExitScene):
         height = screen.get_height() // 8
 
         self._game_over = pygame.font.Font.render(
-            string_font, "GAME OVER!", True, rgbcolors.ghostwhite
+            string_font, gameovertext, True, rgbcolors.ghostwhite
         )
 
         confirm_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), 14)
 
         self._confirm_screen = pygame.font.Font.render(
-            confirm_font, "Continue? y/n", True, rgbcolors.ghostwhite
+            confirm_font, continuetext, True, rgbcolors.ghostwhite
         )
 
         grammar = "points" if score != 1 else "point"
@@ -485,7 +495,7 @@ class GameOverScene(PressAnyKeyToExitScene):
 class ViolentShooterKillerScene(Scene):
     """Scene with murder and violence"""
 
-    def __init__(self, screen, soundtrack=None, score=0, lives=3, oneups=None, num_rows=9, num_cols=20, difficulty=1.0, skin="default", stars=True, bg=False):
+    def __init__(self, screen, soundtrack=None, score=0, lives=3, oneups=None, num_rows=9, num_cols=20, difficulty=1.0, skin="default", stars=True, bg=False, bg_speed=6):
         """Initialize the carnage."""
         super().__init__(screen, rgbcolors.black, soundtrack, skin=skin)
         self._width, self._height = self._screen.get_size()
@@ -497,6 +507,8 @@ class ViolentShooterKillerScene(Scene):
 
         self._stars = stars
         self._bg = bg
+        self._bg_img = None if not self._bg else pygame.image.load(self._theme.get("bg", assets.FALLBACK_IMG))
+        self._bg_speed = bg_speed
 
         self._difficulty_mod = difficulty
 
@@ -532,13 +544,13 @@ class ViolentShooterKillerScene(Scene):
         self._pos_idx = 0
         self._score = score
         self._lives = lives
-
-        ast1_x = randint(64, self._width // 2 - 64)
-        ast2_x = randint(self._width // 2, self._width - 64)
-        ast1_y = randint(400, 550)
-        ast2_y = randint(400, 550)
-        ast1_p = pygame.math.Vector2((ast1_x, ast1_y))
-        ast2_p = pygame.math.Vector2((ast2_x, ast2_y))
+        #
+        # ast1_x = randint(64, self._width // 2 - 64)
+        # ast2_x = randint(self._width // 2, self._width - 64)
+        # # ast1_y = randint(400, 550)
+        # ast2_y = randint(400, 550)
+        # ast1_p = pygame.math.Vector2((ast1_x, ast1_y))
+        # ast2_p = pygame.math.Vector2((ast2_x, ast2_y))
 
         # self._asteroid1 = Asteroid(ast1_p, self._theme.get("ast1", assets.FALLBACK_IMG))
         # self._asteroid2 = Asteroid(ast2_p, self._theme.get("ast2", assets.FALLBACK_IMG))
@@ -552,6 +564,7 @@ class ViolentShooterKillerScene(Scene):
         self._life_picture = pygame.image.load(
             self._theme.get("hero", assets.FALLBACK_IMG)).convert_alpha()
 
+        self._scroll_bg = 0
         if self._stars:
             self._scroll = 0
 
@@ -869,7 +882,7 @@ class ViolentShooterKillerScene(Scene):
                         bullet_target = newpos - pygame.math.Vector2(0, -height)
                         velocity = 15
                         self._bullets.append(
-                            bullets.EnemyBullet(newpos, bullet_target, velocity)
+                            bullets.EnemyBullet(newpos, bullet_target, velocity, self._theme.get("enemybullet", assets.FALLBACK_IMG))
                         )
         if self._inc_pos_idx:
             if not self._speedupswitch:
@@ -940,7 +953,7 @@ class ViolentShooterKillerScene(Scene):
                         bullet_target = newpos - pygame.math.Vector2(0, height)
                         velocity = 20
                         self._bullets.append(
-                            bullets.PlayerBullet(newpos, bullet_target, velocity)
+                            bullets.PlayerBullet(newpos, bullet_target, velocity, self._theme.get("playerbullet", assets.FALLBACK_IMG))
                         )
 
             if self._joysticks:
@@ -1009,6 +1022,20 @@ class ViolentShooterKillerScene(Scene):
     def draw(self):
         super().draw()
 
+        if self._bg:
+            bg_height = self._bg_img.get_height()
+            screen_height = self._screen.get_height()
+            if self._scroll_bg >= screen_height:
+                self._scroll_bg = 0
+
+            frame1_y = self._scroll_bg
+            frame2_y = self._scroll_bg - bg_height
+            self._screen.blit(self._bg_img, (0, frame1_y))
+            self._screen.blit(self._bg_img, (0, frame2_y))
+
+            self._scroll_bg += self._bg_speed
+
+
         if self._stars:
             space_height = self._random_space.get_height()
             screen_height = self._screen.get_height()
@@ -1020,7 +1047,7 @@ class ViolentShooterKillerScene(Scene):
             self._screen.blit(self._random_space, (1, frame1_y))
             self._screen.blit(self._random_space, (1, frame2_y))
 
-            self._scroll = self._scroll + 6
+            self._scroll = self._scroll + self._bg_speed
 
         for enemy in self._enemies:
             if not enemy.is_exploding:
