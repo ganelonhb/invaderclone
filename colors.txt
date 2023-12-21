@@ -1,1 +1,0 @@
-The python virtual env exists. Launching the program.
