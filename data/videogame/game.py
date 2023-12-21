@@ -40,7 +40,7 @@ class VideoGame:
         pygame.joystick.init()
         self._window_size = (window_width, window_height)
         self._clock = pygame.time.Clock()
-        self._screen = pygame.display.set_mode(self._window_size)
+        self._screen = pygame.display.set_mode(self._window_size, pygame.HWSURFACE)
         self._title = window_title
         pygame.display.set_caption(self._title)
         self._game_is_over = False
