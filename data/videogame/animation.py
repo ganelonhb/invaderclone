@@ -14,7 +14,7 @@ class Explosion(pygame.sprite.Sprite):
         """Initialize an Explosion"""
         pygame.sprite.Sprite.__init__(self, self.containers)
         self._sprite = sprite
-        self._defaultlife = 6
+        self._defaultlife = 9
         self._animcycle = 3
         self._images = []
         try:

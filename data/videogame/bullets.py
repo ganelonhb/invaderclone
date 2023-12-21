@@ -16,7 +16,7 @@ class Bullet:
         self._target_position = pygame.math.Vector2(target_position)
         self._speed = speed
         if bulletimg is not None:
-            self._img = pygame.image.load(bulletimg)
+            self._img = bulletimg
             self._width = self._img.get_width()
             self._height= self._img.get_height()
         else:

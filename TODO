@@ -1,9 +1,7 @@
-- Asteroids come down from the top of the screen (like bullets)
-- Chance of asteroid is determined by difficulty_mod
-- Asteroid is rendered beneath the enemies (in case the theme wants to make it look like it's on the ground)
-
-- Allow modification of things like bullet speed, starting lives, splash text, etc
-
-- name input scene
-
-- GUI theme creator???
+X Everything's Size is determined by resolution
+X improve speed by preloading sprites? Use only one sprite object.
+- Finish implementing various text color changes, etc
+- argument groups for argparse
+- Themes can have arguments
+- CLI args get string quotes to be passed to python version... make my brain hurty hurty
+- Finish Windows version (maybe recycle CLI code above?

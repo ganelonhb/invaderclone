@@ -12,9 +12,7 @@ class Obstacle(Bullet):
 
         super().__init__(position, target_position, speed)
 
-        self._img = pygame.image.load(
-            img
-            )
+        self._img = img
 
     @property
     def height(self):

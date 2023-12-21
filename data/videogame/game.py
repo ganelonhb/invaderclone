@@ -3,6 +3,8 @@
 import os
 import warnings
 
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import pygame
 
 from . import rgbcolors
@@ -90,13 +92,31 @@ class InvaderClone(VideoGame):
                 victorytext = "VICTORY!",
                 continuetext = "Continue (Y/N)?",
                 gameovertext = "GAME OVER!",
-                bg_speed = 6
+                bg_speed = 6,
+                titlebg_color = rgbcolors.black,
+                gamebg_color = rgbcolors.black,
+                leaderboardbg_color = rgbcolors.black,
+                gameoverbg_color = rgbcolors.black,
+                title_color = rgbcolors.ghostwhite,
+                subtitle1_text_color = None,
+                subtitle2_text_color = None,
+                pak_text_color = None
                 ):
         """Init the Pygame demo."""
         super().__init__(window_title=name, window_width=width, window_height=height, theme=theme)
 
         self._main_dir = os.path.dirname(os.path.realpath(__file__))
         self._data_dir = os.path.join(self._main_dir, "data")
+
+        self._title_color = title_color
+        self._subtitle1_color = subtitle1_text_color
+        self._subtitle2_color = subtitle2_text_color
+        self._pak_color = pak_text_color
+
+        self._titlebg_color = titlebg_color
+        self._gamebg_color = gamebg_color
+        self._leaderboardbg_color = leaderboardbg_color
+        self._gameoverbg_color = gameoverbg_color
 
         self._difficulty_step = difficulty_step
         self._stars = stars
@@ -132,13 +152,17 @@ class InvaderClone(VideoGame):
             scene.PolygonTitleScene(
                 the_screen,
                 self._title,
-                title_color=rgbcolors.ghostwhite,
+                title_color=self._title_color,
                 soundtrack=self._theme.get("title_music", assets.FALLBACK_SND),
                 skin=self._skin,
                 alttitle = self._alttitle,
                 sub1 = self._sub1,
                 sub2 = self._sub2,
-                pak = self._pak
+                pak = self._pak,
+                background_color = self._titlebg_color,
+                subtitle1_color = self._subtitle1_color,
+                subtitle2_color = self._subtitle2_color,
+                pak_color = self._pak_color,
                 ),
             scene.ViolentShooterKillerScene(
                 the_screen,
@@ -148,7 +172,8 @@ class InvaderClone(VideoGame):
                 stars=self._stars,
                 bg=self._bg,
                 bg_speed=self._bg_speed,
-                skin=self._skin
+                skin=self._skin,
+                bg_color = self._gamebg_color
                 ),
             scene.LeaderboardScene(
                 the_screen,
@@ -156,7 +181,8 @@ class InvaderClone(VideoGame):
                 0,
                 soundtrack=self._theme.get("leaderboard_music", assets.FALLBACK_SND),
                 victorytext=self._victorytext,
-                continuetext=self._continuetext
+                continuetext=self._continuetext,
+                background_color = self._leaderboardbg_color
                 ),
             scene.GameOverScene(
                 the_screen,
@@ -164,7 +190,8 @@ class InvaderClone(VideoGame):
                 soundtrack=self._theme.get("gameover_music", assets.FALLBACK_SND),
                 skin=self._skin,
                 gameovertext=self._gameovertext,
-                continuetext=self._continuetext
+                continuetext=self._continuetext,
+                background_color = self._gameoverbg_color
                 )
         ]
 
@@ -200,7 +227,8 @@ class InvaderClone(VideoGame):
                         self._screen,
                         scr,
                         soundtrack=self._theme.get("gameover_music", assets.FALLBACK_SND),
-                        skin=self._skin
+                        skin=self._skin,
+                        background_color = self._gameoverbg_color
                     )
                     difficulty = 1.0
                     current_idx = 3
@@ -214,7 +242,8 @@ class InvaderClone(VideoGame):
                         soundtrack=self._theme.get("leaderboard_music", assets.FALLBACK_SND),
                         skin=self._skin,
                         victorytext=self._victorytext,
-                        continuetext=self._continuetext
+                        continuetext=self._continuetext,
+                        background_color = self._leaderboardbg_color
                         )
                     difficulty = 1.0
                 case ['ly', scr]:
@@ -232,7 +261,8 @@ class InvaderClone(VideoGame):
                         stars=self._stars,
                         bg=self._bg,
                         bg_speed=self._bg_speed,
-                        skin=self._skin
+                        skin=self._skin,
+                        bg_color = self._gamebg_color
                         )
                 case ['gn']:
                     current_idx = 0
@@ -245,7 +275,11 @@ class InvaderClone(VideoGame):
                         alttitle = self._alttitle,
                         sub1 = self._sub1,
                         sub2 = self._sub2,
-                        pak = self._pak
+                        pak = self._pak,
+                        background_color = self._titlebg_color,
+                        subtitle1_color = self._subtitle1_color,
+                        subtitle2_color = self._subtitle2_color,
+                        pak_color = self._pak_color,
                     )
                     self._scene_graph[1] = scene.ViolentShooterKillerScene(
                         self._screen,
@@ -256,7 +290,8 @@ class InvaderClone(VideoGame):
                         stars=self._stars,
                         bg=self._bg,
                         bg_speed=self._bg_speed,
-                        skin=self._skin
+                        skin=self._skin,
+                        bg_color = self._gamebg_color
                         )
                     difficulty = 1.0
                 case ['gy']:
@@ -270,7 +305,8 @@ class InvaderClone(VideoGame):
                         stars=self._stars,
                         bg=self._bg,
                         bg_speed=self._bg_speed,
-                        skin=self._skin
+                        skin=self._skin,
+                        bg_color = self._gamebg_color
                         )
                     difficulty = 1.0
         pygame.quit()

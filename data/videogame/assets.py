@@ -75,6 +75,9 @@ class Theme:
 
         return self._obstacles[num]
 
+    def get_obstacles(self):
+        return self._obstacles
+
     def num_obstacles(self):
         return len(self._obstacles)
 
@@ -83,6 +86,9 @@ class Theme:
             return FALLBACK_IMG
 
         return self._enemies[num]
+
+    def get_enemies(self):
+        return self._enemies
 
     def num_enemies(self):
         return len(self._enemies)

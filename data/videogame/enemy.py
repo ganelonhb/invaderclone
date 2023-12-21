@@ -15,14 +15,10 @@ class EnemyShip:
         self._screen = screen
         self._position = position
         self._width, self._height = screen.get_size()
-        self._character_width = self._height // 32
+        self._character_width = sprite.get_width()
         width = (self._character_width, self._character_width)
         self._is_exploding = False
         self._sprite = sprite
-        self._sprite = pygame.transform.scale(
-            pygame.image.load(self._sprite).convert_alpha(),
-            width
-        )
         self._velocity = pygame.math.Vector2(0, 0)
         self._target_pos = None
         self._original_pos = position

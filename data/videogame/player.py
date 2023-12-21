@@ -12,12 +12,11 @@ class Player:
 
         self._width, self._height = screen.get_size()
         self._position = position
-        self._size = self._height // 16
-        self._sprite = pygame.image.load(character).convert_alpha()
-        self._sprite = pygame.transform.scale(self._sprite, (self._size, self._size))
+        self._size = character.get_width()
         self._velocity = pygame.math.Vector2(0, 0)
         self.is_dead = False
         self._invincible = 0
+        self._sprite = character
 
         self._powerup = None
         self._powerup_timer = 0
