@@ -9,12 +9,11 @@ import pygame
 import threading
 
 from . import rgbcolors
-from . import assets
+from . import theme
 from . import player
-from .animation import Explosion
+from .explosion import Explosion
 from .enemy import EnemyShip
 from . import bullets
-from .asteroid import Asteroid
 from . import leaderboard
 from . import powerup
 from .obstacle import Obstacle
@@ -34,12 +33,12 @@ class Scene:
 
     def __init__(self, screen, background_color, soundtrack=None, skin="default"):
         """Scene initializer"""
-        self._theme = assets.Theme(skin)
+        self._theme = theme.Theme(skin)
 
         self._screen = screen
         self._background = pygame.Surface(self._screen.get_size())
         self._background.fill(background_color)
-        self._frame_rate = 60
+        self._frame_rate = 30
         self._is_valid = True
         self._soundtrack = soundtrack
         self._render_updates = None
@@ -194,12 +193,12 @@ class PolygonTitleScene(PressAnyKeyToExitScene):
         string_size = screen_height // 44
         subpixel_size = screen_height // 47
 
-        title_font = pygame.font.Font(self._theme.get("titlefont", assets.FALLBACK_FNT), title_modded_size)
+        title_font = pygame.font.Font(self._theme.get("titlefont", theme.FALLBACK_FNT), title_modded_size)
 
-        subtitle_font = pygame.font.Font(self._theme.get("titlefont", assets.FALLBACK_FNT), subtitle_size)
+        subtitle_font = pygame.font.Font(self._theme.get("titlefont", theme.FALLBACK_FNT), subtitle_size)
 
-        string_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), string_size)
-        subpixel_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), subpixel_size)
+        string_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), string_size)
+        subpixel_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), subpixel_size)
 
 
         TITLE = title if alttitle is None else alttitle
@@ -230,7 +229,7 @@ class PolygonTitleScene(PressAnyKeyToExitScene):
         _, height = screen.get_size()
         img_size = height // 8
 
-        img = pygame.image.load(self._theme.get("title_icon", assets.FALLBACK_IMG)).convert_alpha()
+        img = pygame.image.load(self._theme.get("title_icon", theme.FALLBACK_IMG)).convert_alpha()
 
         self._title_img = pygame.transform.scale(img, (img_size, img_size))
 
@@ -300,7 +299,7 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         title_font_size = screen_height // 11
         lb_font_size = confirm_font_size = screen_height // 57
 
-        string_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), title_font_size)
+        string_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), title_font_size)
         self._score = score
         self._lives = lives
         self._y = False
@@ -314,7 +313,7 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         leaderboard = [f"{count + 1}. {word[0]} - {word[1]}"
                        for count, word in enumerate(self._leaderboard.scores)]
 
-        lb_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), lb_font_size)
+        lb_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), lb_font_size)
 
         self._lb_font = [pygame.font.Font.render(
             lb_font,
@@ -323,7 +322,7 @@ class LeaderboardScene(PressAnyKeyToExitScene):
             rgbcolors.ghostwhite
             ) for phrase in leaderboard]
 
-        confirm_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), confirm_font_size)
+        confirm_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), confirm_font_size)
 
         self._confirm_screen = pygame.font.Font.render(
             confirm_font, continuetext, True, rgbcolors.ghostwhite
@@ -376,7 +375,7 @@ class LeaderboardScene(PressAnyKeyToExitScene):
 
             self._screen.blit(
                 self._confirm_screen,
-                ((s_w // 2) - p_x // 2, s_h - (50 + p_y)))
+                ((s_w // 2) - p_x // 2, s_h - (50 + p_y) + (s_w // 100)))
 
     def end_scene(self):
         """End the scene."""
@@ -423,7 +422,7 @@ class GameOverScene(PressAnyKeyToExitScene):
         title_font_size = screen_height // 11
         confirm_font_size = screen_height // 57
 
-        string_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), title_font_size)
+        string_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), title_font_size)
 
         self._y = False
 
@@ -435,7 +434,7 @@ class GameOverScene(PressAnyKeyToExitScene):
             string_font, gameovertext, True, rgbcolors.ghostwhite
         )
 
-        confirm_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), confirm_font_size)
+        confirm_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), confirm_font_size)
 
         self._confirm_screen = pygame.font.Font.render(
             confirm_font, continuetext, True, rgbcolors.ghostwhite
@@ -450,7 +449,7 @@ class GameOverScene(PressAnyKeyToExitScene):
             rgbcolors.ghostwhite
         )
 
-        img = pygame.image.load(self._theme.get("gameover_icon", assets.FALLBACK_IMG)).convert_alpha()
+        img = pygame.image.load(self._theme.get("gameover_icon", theme.FALLBACK_IMG)).convert_alpha()
 
         self._title_img = pygame.transform.scale(img, (height, height))
 
@@ -539,17 +538,20 @@ class ViolentShooterKillerScene(Scene):
                  stars=True,
                  bg=False,
                  bg_speed=6,
-                 bg_color=rgbcolors.black
+                 bg_color=rgbcolors.black,
+                 player_speed=15
                  ):
         """Initialize the carnage."""
         super().__init__(screen, bg_color, soundtrack, skin=skin)
 
         self._sprite_dict = {
-            "hero" : pygame.transform.scale(pygame.image.load(self._theme.get("hero", assets.FALLBACK_IMG)).convert_alpha(), (screen.get_height() // _PLAYER_SIZE_MODIFIER,screen.get_height() // _PLAYER_SIZE_MODIFIER)),
-            "second_hero": pygame.transform.scale(pygame.image.load(self._theme.get("second_hero", assets.FALLBACK_IMG)).convert_alpha(), (screen.get_height() // _PLAYER_SIZE_MODIFIER,screen.get_height() // _PLAYER_SIZE_MODIFIER)),
-            "playerbullet": pygame.image.load(self._theme.get("playerbullet", assets.FALLBACK_IMG)).convert_alpha(),
-            "enemybullet": pygame.image.load(self._theme.get("enemybullet", assets.FALLBACK_IMG)).convert_alpha(),
+            "hero" : pygame.transform.scale(pygame.image.load(self._theme.get("hero", theme.FALLBACK_IMG)).convert_alpha(), (screen.get_height() // _PLAYER_SIZE_MODIFIER,screen.get_height() // _PLAYER_SIZE_MODIFIER)),
+            "second_hero": pygame.transform.scale(pygame.image.load(self._theme.get("second_hero", theme.FALLBACK_IMG)).convert_alpha(), (screen.get_height() // _PLAYER_SIZE_MODIFIER,screen.get_height() // _PLAYER_SIZE_MODIFIER)),
+            "playerbullet": pygame.image.load(self._theme.get("playerbullet", theme.FALLBACK_IMG)).convert_alpha(),
+            "enemybullet": pygame.image.load(self._theme.get("enemybullet", theme.FALLBACK_IMG)).convert_alpha(),
+            "explosion" : pygame.image.load(self._theme.get("explosion", theme.FALLBACK_IMG)).convert_alpha(),
             }
+
         self._enemy_list = []
         for e in self._theme.get_enemies():
             self._enemy_list.append(
@@ -562,16 +564,19 @@ class ViolentShooterKillerScene(Scene):
                 pygame.image.load(o).convert_alpha()
                 )
 
+        self._player_speed = player_speed
+
         self._width, self._height = self._screen.get_size()
         self._player = player.Player(
             pygame.math.Vector2(self._width // 2, self._height - (10 + screen.get_height() // _PLAYER_SIZE_MODIFIER)),
             self._screen,
-            self._sprite_dict["hero"]
+            self._sprite_dict["hero"],
+            self._player_speed
         )
 
         self._stars = stars
         self._bg = bg
-        self._bg_img = None if not self._bg else pygame.transform.scale(pygame.image.load(self._theme.get("bg", assets.FALLBACK_IMG)).convert_alpha(), (screen.get_width(), screen.get_height()))
+        self._bg_img = None if not self._bg else pygame.transform.scale(pygame.image.load(self._theme.get("bg", theme.FALLBACK_IMG)).convert_alpha(), (screen.get_width(), screen.get_height()))
         self._bg_speed = bg_speed
 
         self._difficulty_mod = difficulty
@@ -585,13 +590,12 @@ class ViolentShooterKillerScene(Scene):
         self._num_rows = num_rows
         self._num_cols = num_cols
 
-        self._render_updates = pygame.sprite.RenderUpdates()
-        Explosion.containers = self._render_updates
-        self._explosion_sound = pygame.mixer.Sound(self._theme.get("explode", assets.FALLBACK_SND))
-        self._exploding_kitty = pygame.mixer.Sound(self._theme.get("explode+kitty", assets.FALLBACK_SND))
+        self._explosion_sound = pygame.mixer.Sound(self._theme.get("explode", theme.FALLBACK_SND))
+        self._exploding_kitty = pygame.mixer.Sound(self._theme.get("explode+kitty", theme.FALLBACK_SND))
         self._bullets = []
         self._powerups = []
         self._enemies = []
+        self._explosions = []
         self._obstacles = []
         self._speedupswitch = 4
         self._inc_pos_idx = False
@@ -608,17 +612,8 @@ class ViolentShooterKillerScene(Scene):
         self._pos_idx = 0
         self._score = score
         self._lives = lives
-        #
-        # ast1_x = randint(64, self._width // 2 - 64)
-        # ast2_x = randint(self._width // 2, self._width - 64)
-        # # ast1_y = randint(400, 550)
-        # ast2_y = randint(400, 550)
-        # ast1_p = pygame.math.Vector2((ast1_x, ast1_y))
-        # ast2_p = pygame.math.Vector2((ast2_x, ast2_y))
 
-        # self._asteroid1 = Asteroid(ast1_p, self._theme.get("ast1", assets.FALLBACK_IMG))
-        # self._asteroid2 = Asteroid(ast2_p, self._theme.get("ast2", assets.FALLBACK_IMG))
-        self._score_font = pygame.font.Font(self._theme.get("pixelfont", assets.FALLBACK_FNT), 16)
+        self._score_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), 16)
         self._score_surface = pygame.font.Font.render(
             self._score_font, f"Score: {score}", True, rgbcolors.ghostwhite
         )
@@ -626,7 +621,7 @@ class ViolentShooterKillerScene(Scene):
             self._score_font, f"Lives: x{lives}", True, rgbcolors.ghostwhite
         )
         self._life_picture = pygame.image.load(
-            self._theme.get("hero", assets.FALLBACK_IMG)).convert_alpha()
+            self._theme.get("hero", theme.FALLBACK_IMG)).convert_alpha()
 
         self._scroll_bg = 0
         if self._stars:
@@ -679,7 +674,8 @@ class ViolentShooterKillerScene(Scene):
             self._player2 = player.Player(
                 pygame.math.Vector2(player_2_x, player_2_y),
                 self._screen,
-                self._sprite_dict["second_hero"]
+                self._sprite_dict["second_hero"],
+                player_speed = self._player_speed
             )
 
     def update_lives(self, value):
@@ -738,7 +734,7 @@ class ViolentShooterKillerScene(Scene):
         bullet_target = newpos - pygame.math.Vector2(0, -height - 16)
 
         self._powerups.append(
-            powup_choice[0](newpos, bullet_target, 2, self._theme.get(powup_choice[2], assets.FALLBACK_IMG), powup_choice[1])
+            powup_choice[0](newpos, bullet_target, 2, self._theme.get(powup_choice[2], theme.FALLBACK_IMG), powup_choice[1])
             )
 
     def update_score(self, value):
@@ -791,7 +787,7 @@ class ViolentShooterKillerScene(Scene):
         y_step = gutter_width + enemy_size
         enemies_per_row = self._num_cols + int(self._difficulty_mod) - 1
         num_rows = self._num_rows + int(self._difficulty_mod) - 1
-        print(f"There will be {num_rows} rows and {enemies_per_row} columns")
+        #print(f"There will be {num_rows} rows and {enemies_per_row} columns")
 
         enemy_kind = 0
 
@@ -815,7 +811,7 @@ class ViolentShooterKillerScene(Scene):
             enemy.target = pygame.math.Vector2(target_x, target_y)
 
     def kill_player1(self):
-        Explosion(self._player, self._theme.get("explosion", assets.FALLBACK_IMG), self._player.width)
+        self._explosions.append(Explosion(self._player, self._sprite_dict["explosion"], self._player.width))
         self._explosion_sound.play()
         self._player.position = pygame.math.Vector2(self._width // 2, self._height - (10 + self._screen.get_height() // _PLAYER_SIZE_MODIFIER))
         self._player.invincible_clock()
@@ -823,7 +819,7 @@ class ViolentShooterKillerScene(Scene):
         self.update_lives(-1)
 
     def kill_player2(self):
-        Explosion(self._player, self._theme.get("explosion", assets.FALLBACK_IMG), self._player.width)
+        self._explosions.append(Explosion(self._player2, self._sprite_dict["explosion"], self._player2.width))
         self._explosion_sound.play()
         self._player2.position = pygame.math.Vector2(self._width // 2, self._height - (10 + self._screen.get_height() // _PLAYER_SIZE_MODIFIER))
         self._player2.invincible_clock()
@@ -844,7 +840,7 @@ class ViolentShooterKillerScene(Scene):
         super().update_scene()
 
         if randint(0, 10001) < min(40 * self._difficulty_mod, 6667):
-            print("spawning")
+            #print("spawning")
             self.spawn_obstacle()
 
         self._player.update()
@@ -862,6 +858,13 @@ class ViolentShooterKillerScene(Scene):
                 self.kill_player1()
             if self._player2 and obstacle.rect.colliderect(self._player2.rect):
                 self.kill_player2()
+
+        for explosion in self._explosions:
+            explosion.update()
+            if explosion.should_die:
+                if explosion in self._explosions:
+                    self._explosions.remove(explosion)
+
 
         for bullet in self._bullets:
             bullet.update()
@@ -897,7 +900,7 @@ class ViolentShooterKillerScene(Scene):
                     index = bullet.rect.collidelist(
                         [c.rect for c in self._enemies])
                     if index > -1 and not isinstance(bullet, bullets.EnemyBullet):
-                        Explosion(self._enemies[index], self._theme.get("explosion", assets.FALLBACK_IMG), self._enemies[index].width)
+                        self._explosions.append(Explosion(self._enemies[index], self._sprite_dict["explosion"], self._enemies[index].width))
                         self._enemies[index].is_exploding = True
                         self._enemies.remove(self._enemies[index])
 
@@ -927,7 +930,7 @@ class ViolentShooterKillerScene(Scene):
                     if not self._player.is_dead:
                         self._player.is_dead = True
                         self.update_lives(-999)
-                        Explosion(self._player, self._theme.get("explosion", assets.FALLBACK_IMG), enemy.width)
+                        self._explosions.append(Explosion(self._player, self._sprite_dict["explosion"], self._player.width))
                         self._explosion_sound.play()
                         for enemy in self._enemies:
                             enemy.stop()
@@ -1066,12 +1069,6 @@ class ViolentShooterKillerScene(Scene):
             t1.join()
             t2.join()
 
-    def render_updates(self):
-        super().render_updates()
-        self._render_updates.clear(self._screen, self._background)
-        self._render_updates.update()
-        _ = self._render_updates.draw(self._screen)
-
     # pylint: disable=inconsistent-return-statements
     def end_scene(self):
         """End the scene."""
@@ -1117,6 +1114,12 @@ class ViolentShooterKillerScene(Scene):
 
             self._scroll = self._scroll + self._bg_speed
 
+        self._player.draw(self._screen)
+        if self._player2:
+            self._player2.draw(self._screen)
+        for explosion in self._explosions:
+            if not explosion.should_die:
+                explosion.draw(self._screen)
         for enemy in self._enemies:
             if not enemy.is_exploding:
                 enemy.draw(self._screen)
@@ -1126,12 +1129,6 @@ class ViolentShooterKillerScene(Scene):
             powup.draw(self._screen)
         for obstacle in self._obstacles:
             obstacle.draw(self._screen)
-
-        self._player.draw(self._screen)
-        if self._player2:
-            self._player2.draw(self._screen)
-        # self._asteroid1.draw(self._screen)
-        # self._asteroid2.draw(self._screen)
 
         lives_y = self._score_surface.get_height() + 8
         lives_x = 4

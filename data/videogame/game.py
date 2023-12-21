@@ -8,7 +8,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
 
 from . import rgbcolors
-from . import assets
+from . import theme
 from . import scene
 
 
@@ -33,14 +33,14 @@ class VideoGame:
         window_width=1820,
         window_height=1024,
         window_title="My Awesome Game",
-        theme="default"
+        theme_name="default"
     ):
         """Initialize new game with given window size & window title."""
         pygame.init()
         pygame.joystick.init()
         self._window_size = (window_width, window_height)
         self._clock = pygame.time.Clock()
-        self._screen = pygame.display.set_mode(self._window_size, pygame.HWSURFACE)
+        self._screen = pygame.display.set_mode(self._window_size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._title = window_title
         pygame.display.set_caption(self._title)
         self._game_is_over = False
@@ -50,9 +50,9 @@ class VideoGame:
             warnings.warn("Sound disabled.", RuntimeWarning)
         self._scene_graph = None
 
-        self._theme = assets.Theme(theme)
+        self._theme = theme.Theme(theme_name)
 
-        icon = pygame.image.load(self._theme.get("title_icon", assets.FALLBACK_IMG))
+        icon = pygame.image.load(self._theme.get("title_icon", theme.FALLBACK_IMG))
         icon_img = pygame.transform.scale(icon, (128,128))
         pygame.display.set_icon(icon_img)
 
@@ -78,7 +78,7 @@ class InvaderClone(VideoGame):
                 enemy_rows=4,
                 enemy_cols=8,
                 difficulty_step=0.05,
-                theme="default",
+                theme_name="default",
                 powup=True,
                 enable_multiplayer=True,
                 width=1820,
@@ -100,10 +100,11 @@ class InvaderClone(VideoGame):
                 title_color = rgbcolors.ghostwhite,
                 subtitle1_text_color = None,
                 subtitle2_text_color = None,
-                pak_text_color = None
+                pak_text_color = None,
+                player_speed = 15
                 ):
         """Init the Pygame demo."""
-        super().__init__(window_title=name, window_width=width, window_height=height, theme=theme)
+        super().__init__(window_title=name, window_width=width, window_height=height, theme_name=theme_name)
 
         self._main_dir = os.path.dirname(os.path.realpath(__file__))
         self._data_dir = os.path.join(self._main_dir, "data")
@@ -122,7 +123,7 @@ class InvaderClone(VideoGame):
         self._stars = stars
         self._bg = bg
         self._bg_speed = bg_speed
-        self._skin = theme
+        self._skin = theme_name
 
         #Title Screen Settings:
         self._alttitle = alttitle
@@ -140,7 +141,9 @@ class InvaderClone(VideoGame):
         self._enemy_rows = enemy_rows
         self._enemy_cols = enemy_cols
 
-        print("Starting the game...")
+        self._player_speed = player_speed
+
+        #print("Starting the game...")
 
         self.build_scene_graph()
 
@@ -153,7 +156,7 @@ class InvaderClone(VideoGame):
                 the_screen,
                 self._title,
                 title_color=self._title_color,
-                soundtrack=self._theme.get("title_music", assets.FALLBACK_SND),
+                soundtrack=self._theme.get("title_music", theme.FALLBACK_SND),
                 skin=self._skin,
                 alttitle = self._alttitle,
                 sub1 = self._sub1,
@@ -166,20 +169,21 @@ class InvaderClone(VideoGame):
                 ),
             scene.ViolentShooterKillerScene(
                 the_screen,
-                soundtrack=self._theme.get("game_music", assets.FALLBACK_SND),
+                soundtrack=self._theme.get("game_music", theme.FALLBACK_SND),
                 num_rows=self._enemy_rows,
                 num_cols=self._enemy_cols,
                 stars=self._stars,
                 bg=self._bg,
                 bg_speed=self._bg_speed,
                 skin=self._skin,
-                bg_color = self._gamebg_color
+                bg_color = self._gamebg_color,
+                player_speed = self._player_speed
                 ),
             scene.LeaderboardScene(
                 the_screen,
                 0,
                 0,
-                soundtrack=self._theme.get("leaderboard_music", assets.FALLBACK_SND),
+                soundtrack=self._theme.get("leaderboard_music", theme.FALLBACK_SND),
                 victorytext=self._victorytext,
                 continuetext=self._continuetext,
                 background_color = self._leaderboardbg_color
@@ -187,7 +191,7 @@ class InvaderClone(VideoGame):
             scene.GameOverScene(
                 the_screen,
                 0,
-                soundtrack=self._theme.get("gameover_music", assets.FALLBACK_SND),
+                soundtrack=self._theme.get("gameover_music", theme.FALLBACK_SND),
                 skin=self._skin,
                 gameovertext=self._gameovertext,
                 continuetext=self._continuetext,
@@ -226,7 +230,7 @@ class InvaderClone(VideoGame):
                     self._scene_graph[3] = scene.GameOverScene(
                         self._screen,
                         scr,
-                        soundtrack=self._theme.get("gameover_music", assets.FALLBACK_SND),
+                        soundtrack=self._theme.get("gameover_music", theme.FALLBACK_SND),
                         skin=self._skin,
                         background_color = self._gameoverbg_color
                     )
@@ -239,7 +243,7 @@ class InvaderClone(VideoGame):
                         scr[0],
                         scr[1],
                         scr[2],
-                        soundtrack=self._theme.get("leaderboard_music", assets.FALLBACK_SND),
+                        soundtrack=self._theme.get("leaderboard_music", theme.FALLBACK_SND),
                         skin=self._skin,
                         victorytext=self._victorytext,
                         continuetext=self._continuetext,
@@ -251,7 +255,7 @@ class InvaderClone(VideoGame):
                     diff = diff + self._difficulty_step
                     self._scene_graph[1] = scene.ViolentShooterKillerScene(
                         self._screen,
-                        self._theme.get("game_music", assets.FALLBACK_SND),
+                        self._theme.get("game_music", theme.FALLBACK_SND),
                         scr[0],
                         scr[1],
                         scr[2],
@@ -262,7 +266,8 @@ class InvaderClone(VideoGame):
                         bg=self._bg,
                         bg_speed=self._bg_speed,
                         skin=self._skin,
-                        bg_color = self._gamebg_color
+                        bg_color = self._gamebg_color,
+                        player_speed = self._player_speed
                         )
                 case ['gn']:
                     current_idx = 0
@@ -270,7 +275,7 @@ class InvaderClone(VideoGame):
                         self._screen,
                         self._title,
                         title_color=rgbcolors.ghostwhite,
-                        soundtrack=self._theme.get("title_music", assets.FALLBACK_SND),
+                        soundtrack=self._theme.get("title_music", theme.FALLBACK_SND),
                         skin=self._skin,
                         alttitle = self._alttitle,
                         sub1 = self._sub1,
@@ -283,7 +288,7 @@ class InvaderClone(VideoGame):
                     )
                     self._scene_graph[1] = scene.ViolentShooterKillerScene(
                         self._screen,
-                        soundtrack=self._theme.get("game_music", assets.FALLBACK_SND),
+                        soundtrack=self._theme.get("game_music", theme.FALLBACK_SND),
                         num_rows=self._enemy_rows,
                         num_cols=self._enemy_cols,
                         difficulty=diff,
@@ -291,14 +296,15 @@ class InvaderClone(VideoGame):
                         bg=self._bg,
                         bg_speed=self._bg_speed,
                         skin=self._skin,
-                        bg_color = self._gamebg_color
+                        bg_color = self._gamebg_color,
+                        player_speed = self._player_speed
                         )
                     difficulty = 1.0
                 case ['gy']:
                     current_idx = 1
                     self._scene_graph[1] = scene.ViolentShooterKillerScene(
                         self._screen,
-                        soundtrack=self._theme.get("game_music", assets.FALLBACK_SND),
+                        soundtrack=self._theme.get("game_music", theme.FALLBACK_SND),
                         num_rows=self._enemy_rows,
                         num_cols=self._enemy_cols,
                         difficulty=diff,
@@ -306,7 +312,8 @@ class InvaderClone(VideoGame):
                         bg=self._bg,
                         bg_speed=self._bg_speed,
                         skin=self._skin,
-                        bg_color = self._gamebg_color
+                        bg_color = self._gamebg_color,
+                        player_speed = self._player_speed
                         )
                     difficulty = 1.0
         pygame.quit()

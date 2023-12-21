@@ -45,7 +45,8 @@ def main():
     game_settings.add_argument("--width", default=1000, type=int, help="window width (default 1920)")
     game_settings.add_argument("--height", default=800, type=int, help="window height (default 1024)")
     game_settings.add_argument("-d", "--difficulty_step", default=25.0, type=float, help="increase the difficulty by this percent every round (default 25.0)")
-    game_settings.add_argument("-n", "--name", default="Invader Clone", help="change the name of the game.")
+    game_settings.add_argument("-n", "--name", default="Invader Clone", help="change the name of the game")
+    game_settings.add_argument("--player_speed", type=float, default=15., help="change the speed of the player")
 
     theme_settings = parser.add_argument_group(title="theme settings", description="modify generic theme settings")
     theme_settings.add_argument("-t", "--theme", default="default", help="change the theme of the game.")
@@ -119,7 +120,7 @@ def main():
             enemy_rows=args.rows,
             enemy_cols=args.columns,
             difficulty_step=args.difficulty_step / 100.,
-            theme=args.theme,
+            theme_name=args.theme,
             stars=not args.disable_stars,
             bg=args.enable_background,
             alttitle=args.alt_title,
@@ -138,6 +139,7 @@ def main():
             subtitle1_text_color=cd[args.subtitle1_text_color],
             subtitle2_text_color=cd[args.subtitle2_text_color],
             pak_text_color=cd[args.press_any_key_text_color],
+            player_speed=args.player_speed
             ).run()
         )
 

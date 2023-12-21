@@ -2,43 +2,41 @@
 
 import pygame
 
-from . import assets
-
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-few-public-methods
-class Explosion(pygame.sprite.Sprite):
+class Explosion:
     """An explosion"""
 
-    def __init__(self, actor, sprite, size=32):
+    def __init__(self, actor, sprite, size):
         """Initialize an Explosion"""
-        pygame.sprite.Sprite.__init__(self, self.containers)
-        self._sprite = sprite
         self._defaultlife = 9
         self._animcycle = 3
+        img = pygame.transform.scale(sprite, (size, size))
         self._images = []
-        try:
-            surface = pygame.image.load(self._sprite).convert_alpha()
-        except pygame.error as error:
-            raise SystemExit(
-                    f"Could not load image at {self._sprite}") from error
-        img = surface
-        img = pygame.transform.scale(img, (size, size)).convert_alpha()
         if not self._images:
-            self._images = [img,
+            self._images = [img.convert_alpha(),
                             pygame.transform.flip(img, 1, 1).convert_alpha()]
 
         anim_x, anim_y = actor.rect.center
+        self._position = actor.position
 
-        self.image = self._images[0].convert_alpha()
+        self.image = self._images[0]
         self.rect = self.image.get_rect(center=(anim_x, anim_y))
         self.life = self._defaultlife
         self._actor = actor
 
+        self.should_die = False
+
     def update(self):
         """Update the explosion animation"""
         self.life = self.life - 1
-        self.image = self._images[self.life // self._animcycle % 2].convert_alpha()
+        self.image = self._images[self.life // self._animcycle % 2]
         if self.life <= 0:
-            self.kill()
+            self.should_die = True
             self._actor.is_exploding = False
+
+    def draw(self, screen):
+
+        if not self.should_die:
+            screen.blit(self.image, self._position)

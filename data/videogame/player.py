@@ -7,7 +7,7 @@ import pygame
 class Player:
     """A player."""
 
-    def __init__(self, position, screen, character):
+    def __init__(self, position, screen, character, player_speed=15):
         """initialize a player character"""
 
         self._width, self._height = screen.get_size()
@@ -17,6 +17,7 @@ class Player:
         self.is_dead = False
         self._invincible = 0
         self._sprite = character
+        self._speed = player_speed
 
         self._powerup = None
         self._powerup_timer = 0
@@ -115,17 +116,17 @@ class Player:
 
     def move_left(self, axis_mult=1):
         """Move the player character left"""
-        speed = -int(15 * abs(axis_mult) + 0.5)
+        speed = -int(self._speed * abs(axis_mult) + 0.5)
         if speed > -1:
             speed = -1
         self._velocity = pygame.math.Vector2(speed, 0)
 
     def move_right(self, axis_mult=1):
         """Move the player character right"""
-        speed = int(15 * abs(axis_mult) + 0.5)
+        speed = int(self._speed * abs(axis_mult) + 0.5)
         if speed < 1:
             speed = 1
-        self._velocity = pygame.math.Vector2(15, 0)
+        self._velocity = pygame.math.Vector2(speed, 0)
 
     def _move(self, vel):
         """move the player"""

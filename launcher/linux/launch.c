@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 	if (dir)
 	{
 		// If exists, the program simply needs to be launched
-		printf("The python virtual env exists. Launching the program.");
+		//printf("The python virtual env exists. Launching the program.");
 		closedir(dir);
 	}
 	else if (ENOENT == errno)
