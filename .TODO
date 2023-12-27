@@ -7,6 +7,8 @@ X argument groups for argparse
 X Themes can have arguments
 - CLI args get string quotes to be passed to python version... make my brain hurty hurty
 - Finish Windows version (maybe recycle CLI code above?
+- Every scene object takes a game_settings arg instead of passing everything around
+- Redo scene graph implementation
 X Replace Explosion with normal sprite
 - README.md
 - upload to pypi

@@ -120,6 +120,8 @@ def main():
                         print(f"[Line {num + 1}] Error parsing theme.args. Could not cast {line_tuple[1].strip()} to type {type(var_args[line_tuple[0].strip()])}.")
                         sys.exit(-1)
 
+    game_settings = deepcopy(dict(vars(args)))
+
     sys.exit(
         game.InvaderClone(
             name=args.name,
