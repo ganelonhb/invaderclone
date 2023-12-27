@@ -4,33 +4,27 @@ from os import path, makedirs
 from sys import platform
 from glob import glob
 
-_main_dir = path.split(path.abspath(__file__))[0]
-_data_dir = path.join(_main_dir, "data")
+from .constants import SETTINGS_DIR, DATA_DIR
 
-UNIX_SYSTEMS = ["aix", "darwin", "freebsd", "linux", "openbsd"]
-WINDOWS_SYSTEMS = ["win32", "win64", "cygwin", "msys", "nt"]
-
-_docsdir = ".config" if platform in UNIX_SYSTEMS else "Documents"
-
-_settingsdir = path.join(path.expanduser("~"), _docsdir, "invaderclone")
-
-if not path.exists(path.join(_settingsdir, "themes")):
-    makedirs(path.join(_settingsdir, "themes"))
-
-FALLBACK_IMG = path.join(_data_dir, "missing.png")
+# missing.png created by ganelon, but inspired by the Source Engine's fallback texture.
+FALLBACK_IMG = path.join(DATA_DIR, "missing.png")
 
 # Electric Buzz retrieved from https://mixkit.co/free-sound-effects/error/
-FALLBACK_SND = path.join(_data_dir, "missing.wav")
+FALLBACK_SND = path.join(DATA_DIR, "missing.wav")
 
 # Curses font retrieved from https://www.1001fonts.com/curses-font.html
-FALLBACK_FNT = path.join(_data_dir, "curs.ttf")
+FALLBACK_FNT = path.join(DATA_DIR, "curs.ttf")
 
 class Theme:
 
     def __init__(self, name='default'):
+
+        if not path.exists(path.join(SETTINGS_DIR, "themes")):
+            makedirs(path.join(SETTINGS_DIR, "themes"))
+
         self._name = name
-        self._assets_path = path.join(_data_dir, "themes", name)
-        self._config_path = path.join(_settingsdir, "themes", name)
+        self._assets_path = path.join(DATA_DIR, "themes", name)
+        self._config_path = path.join(SETTINGS_DIR, "themes", name)
 
         self._asset_dictionary = {
             "title_icon": path.join("images", "title.png"),

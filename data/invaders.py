@@ -39,14 +39,22 @@ def main():
 
     parser.add_argument("-l", "--list_colors", action='store_true', help='show a the list of colors that arguments accepting COLOR NAME will take and exit')
 
-    game_settings = parser.add_argument_group(title="game settings", description="modify generic game settings")
-    game_settings.add_argument("-r", "--rows", default=4, type=int, help="how many rows of enemies there are (default 5)")
-    game_settings.add_argument("-c", "--columns", default=12, type=int, help="how many columns of enemies there are (default 9)")
-    game_settings.add_argument("--width", default=1000, type=int, help="window width (default 1920)")
-    game_settings.add_argument("--height", default=800, type=int, help="window height (default 1024)")
-    game_settings.add_argument("-d", "--difficulty_step", default=25.0, type=float, help="increase the difficulty by this percent every round (default 25.0)")
-    game_settings.add_argument("-n", "--name", default="Invader Clone", help="change the name of the game")
-    game_settings.add_argument("--player_speed", type=float, default=15., help="change the speed of the player")
+    window_settings = parser.add_argument_group(title="window settings", description="modify window settings")
+    window_settings.add_argument("--width", default=1000, type=int, help="window width (default 1000)")
+    window_settings.add_argument("--height", default=800, type=int, help="window height (default 800)")
+    window_settings.add_argument("-n", "--name", default="Invader Clone", help="change the name of the game")
+
+    difficulty_settings = parser.add_argument_group(title="difficulty settings", description="modify various difficulty settings")
+    difficulty_settings.add_argument("-d", "--difficulty_step", default=25.0, type=float, help="increase the difficulty by this percent every round (default 25.0)")
+    difficulty_settings.add_argument("-r", "--rows", default=4, type=int, help="how many rows of enemies there are (default 5)")
+    difficulty_settings.add_argument("-c", "--columns", default=12, type=int, help="how many columns of enemies there are (default 9)")
+    difficulty_settings.add_argument("--player_speed", type=float, default=15., help="change the speed of the player")
+    difficulty_settings.add_argument("--enemy_speed", type=float, default=5., help="change the base speed of enemies")
+    difficulty_settings.add_argument("--obstacle_speed", type=float, default=7., help="change the base speed of obstacles")
+    difficulty_settings.add_argument("--powerup_speed", type=float, default=5., help="change the speed of powerups")
+    difficulty_settings.add_argument("--powerup_chance", type=int, default=13, help = "percent chance a powerup spawns at the powerup score")
+    difficulty_settings.add_argument("--obstacle_chance", type=float, default=0.004, help = "percent chance an obstacle spawns any given frame")
+
 
     theme_settings = parser.add_argument_group(title="theme settings", description="modify generic theme settings")
     theme_settings.add_argument("-t", "--theme", default="default", help="change the theme of the game.")
@@ -139,7 +147,11 @@ def main():
             subtitle1_text_color=cd[args.subtitle1_text_color],
             subtitle2_text_color=cd[args.subtitle2_text_color],
             pak_text_color=cd[args.press_any_key_text_color],
-            player_speed=args.player_speed
+            player_speed=args.player_speed,
+            enemy_speed=args.enemy_speed,
+            obstacle_speed=args.obstacle_speed,
+            powerup_speed=args.powerup_speed,
+            obstacle_chance = args.obstacle_chance,
             ).run()
         )
 

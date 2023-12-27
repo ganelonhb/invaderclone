@@ -31,73 +31,6 @@ class Bullet:
                             - self._target_position).length_squared()
         return math.isclose(squared_distance, 0.0, rel_tol=1e-01)
 
-    def update(self):
-        """update the position of a bullet"""
-
-        self._position.move_towards_ip(self._target_position, self._speed)
-
-    def draw(self, screen):
-        """draw a bullet"""
-
-        raise NotImplementedError
-
-
-class PlayerBullet(Bullet):
-    """Implements a player's bullet"""
-
-    @property
-    def rect(self):
-        """bounding rect"""
-
-        left = self._position.x
-        top = self._position.y
-        width = self._width
-        height = self._height
-        return pygame.Rect(left, top, width, height)
-
-    def draw(self, screen):
-        """draw a player bullet"""
-
-        if self._img is not None:
-            screen.blit(self._img, self._position)
-        else:
-            pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)
-
-class PlayerBulletOneThird(Bullet):
-    """implements a player bullet that costs 1/3rd the price when lost"""
-
-    @property
-    def rect(self):
-        """bounding rect"""
-
-        left = self._position.x
-        top = self._position.y
-        width = self._width
-        height = self._height
-        return pygame.Rect(left, top, width, height)
-
-    def draw(self, screen):
-        """draw a player bullet"""
-
-        if self._img is not None:
-            screen.blit(self._img, self._position)
-        else:
-            pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)
-
-
-class EnemyBullet(Bullet):
-    """implement an enemy bullet"""
-
-    @property
-    def rect(self):
-        """bounding rect"""
-
-        left = self._position.x
-        top = self._position.y
-        width = self._width
-        height = self._height
-        return pygame.Rect(left, top, width, height)
-
     def draw(self, screen):
         """draw an enemy bullet"""
 
@@ -105,3 +38,40 @@ class EnemyBullet(Bullet):
             screen.blit(self._img, self._position)
         else:
             pygame.draw.rect(screen, rgbcolors.ghostwhite, self.rect)
+
+    @property
+    def rect(self):
+        """bounding rect"""
+
+        left = self._position.x
+        top = self._position.y
+        width = self._width
+        height = self._height
+        return pygame.Rect(left, top, width, height)
+
+    def update(self):
+        """update the position of a bullet"""
+
+        self._position.move_towards_ip(self._target_position, self._speed)
+
+
+class PlayerBullet(Bullet):
+    """Implements a player's bullet"""
+
+    def __init__self(self, position, target_position, speed, bulletimg=None):
+        super.__init__(self, position, target_position, speed, bulletimg)
+
+class PlayerBulletOneThird(Bullet):
+    """implements a player bullet that costs 1/3rd the price when lost"""
+
+    def __init__self(self, position, target_position, speed, bulletimg=None):
+        super.__init__(self, position, target_position, speed, bulletimg)
+
+
+class EnemyBullet(Bullet):
+    """implement an enemy bullet"""
+
+    def __init__self(self, position, target_position, speed, bulletimg=None):
+        super.__init__(self, position, target_position, speed, bulletimg)
+
+

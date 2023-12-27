@@ -7,7 +7,7 @@ X argument groups for argparse
 X Themes can have arguments
 - CLI args get string quotes to be passed to python version... make my brain hurty hurty
 - Finish Windows version (maybe recycle CLI code above?
-- Replace Explosion with normal sprite
+X Replace Explosion with normal sprite
 - README.md
 - upload to pypi
 
@@ -22,7 +22,7 @@ version 1.2:
     - __init__.py
     - animation.py -> explosion.py
     - assets.py -> theme.py
-    - asteroid.py -> X
+    X asteroid.py -> X
     - bullets.py
     - enemy.py
     - game.py !!!
