@@ -16,18 +16,18 @@ from .constants import save_path, file_name
 class Scene:
     """Base class for making PyGame Scenes."""
 
-    def __init__(self, screen, background_color, soundtrack=None, skin="default"):
+    def __init__(self, screen, game_settings):
         """Scene initializer"""
-        self._theme = theme.Theme(skin)
+
+        self._game_settings=game_settings
+        self._theme = theme.Theme(self._game_settings["theme"])
 
         self._screen = screen
         self._background = pygame.Surface(self._screen.get_size())
-        self._background.fill(background_color)
-        self._frame_rate = 30
+        #self._background.fill(self._game_settings["default_bg"])
+        self._frame_rate = self._game_settings["frame_rate"]
         self._is_valid = True
-        self._soundtrack = soundtrack
-        self._render_updates = None
-        self._next_scene = None
+        self._soundtrack = self._game_settings["default_soundtrack"]
         self._quit = False
         self._timestart = time.time()
 
@@ -41,12 +41,15 @@ class Scene:
         if not path.exists(file_name):
             leaderboard.Leaderboard().save(save_path)
 
-        self._leaderboard = leaderboard.create_leaderboard_from_pickle(
-            file_name)
+        self._leaderboard = leaderboard.\
+            create_leaderboard_from_pickle(file_name)
+
+    def reset_scene(self):
+        self.__init__(self._screen, self._game_settings)
 
     def _make_joysticks(self):
         """make a list of joysticks"""
-        if pygame.joystick.get_count() > 0:
+        if pygame.joystick.get_count() > 0 and not self._game_settings["disable_gamepads"]:
             self._joysticks = [
                 pygame.joystick.Joystick(x)
                 for x in range(pygame.joystick.get_count())
@@ -83,9 +86,12 @@ class Scene:
         return self._is_valid
 
     def update_scene(self):
-        """Update the scene state."""
-
         pass
+
+    def update_settings(self, new_settings = None):
+        gs = self._game_settings if new_settings is None else new_settings
+        self._frame_rate = gs["frame_rate"]
+        self._soundtrack = gs["default_soundtrack"]
 
     def start_scene(self):
         """Start the scene."""
@@ -104,21 +110,15 @@ class Scene:
         if self._soundtrack and pygame.mixer.music.get_busy():
             # Fade music out so there isn't an audible pop
             pygame.mixer.music.fadeout(500)
-            pygame.mixer.music.stop()
+            pygame.milevexer.music.stop()
 
         if self._quit:
-            return ["q"]
+            return ["QUIT_GAME"]
 
-        return ["p"]
+        return ["CHANGE_SCENE", "Level0"]
 
     def frame_rate(self):
         """Return the frame rate the scene desires."""
         return self._frame_rate
-
-    @property
-    def next_scene(self):
-        """return the next scene, as set by each individual scene"""
-
-        return self._next_scene
 
 

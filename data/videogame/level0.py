@@ -23,57 +23,39 @@ class Level0(Scene):
 
     def __init__(self,
                 screen,
-                soundtrack=None,
-                score=0,
-                lives=3,
-                oneups=None,
-                num_rows=9,
-                num_cols=20,
-                difficulty=1.0,
-                skin="default",
-                stars=True,
-                bg=False,
-                bg_speed=6,
-                bg_color=rgbcolors.black,
-                player_speed=15.,
-                enemy_speed = 5.,
-                obstacle_speed = 7.,
-                powerup_speed = 20.,
-                powerup_chance = 13,
-                obstacle_chance = 0.004,
+                game_settings,
                 ):
         """Initialize the carnage."""
-        super().__init__(screen, bg_color, soundtrack, skin=skin)
+        super().__init__(screen, game_settings)
 
-        self._sprite_dict = {
-            "hero" : pygame.transform.scale(pygame.image.load(self._theme.get("hero", theme.FALLBACK_IMG)).convert_alpha(), (screen.get_height() // PLAYER_SIZE_MODIFIER,screen.get_height() // PLAYER_SIZE_MODIFIER)),
-            "second_hero": pygame.transform.scale(pygame.image.load(self._theme.get("second_hero", theme.FALLBACK_IMG)).convert_alpha(), (screen.get_height() // PLAYER_SIZE_MODIFIER,screen.get_height() // PLAYER_SIZE_MODIFIER)),
-            "playerbullet": pygame.image.load(self._theme.get("playerbullet", theme.FALLBACK_IMG)).convert_alpha(),
-            "enemybullet": pygame.image.load(self._theme.get("enemybullet", theme.FALLBACK_IMG)).convert_alpha(),
-            "explosion" : pygame.image.load(self._theme.get("explosion", theme.FALLBACK_IMG)).convert_alpha(),
-            "burst" : pygame.image.load(self._theme.get("burst", theme.FALLBACK_IMG)).convert_alpha(),
-            }
+        self._sprite_dict = None
+        self._enemy_list = None
+        self._obstacle_list = None
+        self._player_speed = None
+        self._enemy_speed = None
+        self._obstacle_speed = None
+        self._powerup_speed = None
+        self._powup_chance = None
+        self._obstacle_chance = None
+        self._stars = None
+        self._difficulty_mod = None
+        self._score = None
+        self._lives = None
+        self._score_p2 = None
+        self._lives_p2 = None
+        self._num_rows = None
+        self._num_cols = None
+        self._score_font = None
+        self._score_surface = None
+        self._lives_surface = None
+        self._lives_surface_p2 = None
+        self._life_picture = None
+        self._life_picture_p2 = None
 
-        self._enemy_list = []
-        for e in self._theme.get_enemies():
-            self._enemy_list.append(
-                pygame.transform.scale(pygame.image.load(e).convert_alpha(),(screen.get_height() // ENEMY_SIZE_MODIFIER, screen.get_height() // ENEMY_SIZE_MODIFIER))
-                )
-
-        self._obstacle_list = []
-        for o in self._theme.get_obstacles():
-            self._obstacle_list.append(
-                pygame.image.load(o).convert_alpha()
-                )
-
-        self._player_speed = player_speed
-        self._enemy_speed = enemy_speed
-        self._obstacle_speed = obstacle_speed
-        self._powerup_speed = powerup_speed
-        self._powup_chance = powerup_chance
-        self._obstacle_chance = obstacle_chance
+        self.update_settings()
 
         self._width, self._height = self._screen.get_size()
+
         self._player = player.Player(
             pygame.math.Vector2(self._width // 2, self._height - (10 + screen.get_height() // PLAYER_SIZE_MODIFIER)),
             self._screen,
@@ -81,21 +63,8 @@ class Level0(Scene):
             self._player_speed
         )
 
-        self._stars = stars
-        self._bg = bg
-        self._bg_img = None if not self._bg else pygame.transform.scale(pygame.image.load(self._theme.get("bg", theme.FALLBACK_IMG)).convert_alpha(), (screen.get_width(), screen.get_height()))
-        self._bg_speed = bg_speed
-
-        self._difficulty_mod = difficulty
-
-
         self._player2 = None
         self._make_player2()
-
-        self._oneups = [] if oneups is None else oneups
-
-        self._num_rows = num_rows
-        self._num_cols = num_cols
 
         self._explosion_sound = pygame.mixer.Sound(self._theme.get("explode", theme.FALLBACK_SND))
         self._exploding_kitty = pygame.mixer.Sound(self._theme.get("explode+kitty", theme.FALLBACK_SND))
@@ -117,18 +86,6 @@ class Level0(Scene):
         self._positions = [(0, down), (-self._go, 0),
                            (0, down), (self._go, 0)]
         self._pos_idx = 0
-        self._score = score
-        self._lives = lives
-
-        self._score_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), 16)
-        self._score_surface = pygame.font.Font.render(
-            self._score_font, f"Score: {score}", True, rgbcolors.ghostwhite
-        )
-        self._lives_surface = pygame.font.Font.render(
-            self._score_font, f"Lives: x{lives}", True, rgbcolors.ghostwhite
-        )
-        self._life_picture = pygame.image.load(
-            self._theme.get("hero", theme.FALLBACK_IMG)).convert_alpha()
 
         self._scroll_bg = 0
         if self._stars:
@@ -171,11 +128,88 @@ class Level0(Scene):
 
         self._make_enemies()
 
+    def reset_scene(self):
+        super().reset_scene()
+
+        self.__init__(self._screen, self._game_settings)
+
+    def update_settings(self, new_settings = None):
+        super().update_settings()
+
+        gs = self._game_settings if new_settings is None else new_settings
+        cd = rgbcolors.color_dictionary
+        # Assets
+        self._sprite_dict = {
+            "hero" : pygame.transform.scale(pygame.image.load(self._theme.get("hero", theme.FALLBACK_IMG)).convert_alpha(), (self._screen.get_height() // PLAYER_SIZE_MODIFIER,self._screen.get_height() // PLAYER_SIZE_MODIFIER)),
+            "second_hero": pygame.transform.scale(pygame.image.load(self._theme.get("second_hero", theme.FALLBACK_IMG)).convert_alpha(), (self._screen.get_height() // PLAYER_SIZE_MODIFIER,self._screen.get_height() // PLAYER_SIZE_MODIFIER)),
+            "playerbullet": pygame.image.load(self._theme.get("playerbullet", theme.FALLBACK_IMG)).convert_alpha(),
+            "enemybullet": pygame.image.load(self._theme.get("enemybullet", theme.FALLBACK_IMG)).convert_alpha(),
+            "explosion" : pygame.image.load(self._theme.get("explosion", theme.FALLBACK_IMG)).convert_alpha(),
+            "burst" : pygame.image.load(self._theme.get("burst", theme.FALLBACK_IMG)).convert_alpha(),
+            "bg" : pygame.transform.scale(pygame.image.load(self._theme.get("bg", theme.FALLBACK_IMG)).convert_alpha(), (self._screen.get_width(), self._screen.get_height())),
+            }
+
+        self._enemy_list = []
+        for e in self._theme.get_enemies():
+            self._enemy_list.append(
+                pygame.transform.scale(pygame.image.load(e).convert_alpha(),(self._screen.get_height() // ENEMY_SIZE_MODIFIER, self._screen.get_height() // ENEMY_SIZE_MODIFIER))
+                )
+
+        self._obstacle_list = []
+        for o in self._theme.get_obstacles():
+            self._obstacle_list.append(
+                pygame.image.load(o).convert_alpha()
+                )
+
+        # Speeds
+        self._player_speed = gs["player_speed"]
+        self._enemy_speed = gs["enemy_speed"]
+        self._obstacle_speed = gs["obstacle_speed"]
+        self._powerup_speed = gs["powerup_speed"]
+
+        # Chances
+        self._powup_chance = gs["powerup_chance"]
+        self._obstacle_chance = gs["obstacle_chance"]
+
+        # BG Options
+        self._stars = not gs["disable_stars"]
+        self._bg = gs["enable_background"]
+        self._bg_img = None if not self._bg else self._sprite_dict["bg"]
+        self._bg_speed = gs["bg_speed"]
+
+        # Difficulty
+        self._difficulty_mod = gs["current_difficulty_modifier"]
+        self._num_rows = gs["rows"]
+        self._num_cols = gs["columns"]
+
+        # Scores/Lives
+        self._score = gs["current_score_p1"]
+        self._lives = gs["current_lives_p1"]
+        self._score_p2 = gs["current_score_p2"]
+        self._lives_p2 = gs["current_lives_p2"]
+
+        # Fonts
+        self._score_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), 16)
+        self._score_surface = pygame.font.Font.render(
+            self._score_font, f"Score: {self._score}", True, cd[gs["ingame_font_color"]]
+        )
+        self._lives_surface = pygame.font.Font.render(
+            self._score_font, f"Lives: x{self._lives}", True, cd[gs["ingame_font_color"]]
+        )
+        self._lives_surface_p2 = pygame.font.Font.render(
+            self._score_font, f"Lives: x{self._lives_p2}", True, cd[gs["ingame_font_color"]]
+        )
+        self._life_picture = pygame.image.load(
+            self._theme.get("hero", theme.FALLBACK_IMG)).convert_alpha()
+        self._life_picture_p2 = pygame.image.load(
+            self._theme.get("second_hero", theme.FALLBACK_IMG)).convert_alpha()
+
+
     def _make_player2(self):
         """determine if we should make player 2, and make him"""
 
-        if self._joysticks is not None and len(self._joysticks) > 1:
-            gutter = self._player.width + (self.player.width // 2)
+        if not self._game_settings["disable_multiplayer"] and self._joysticks is not None and len(self._joysticks) > 1:
+            gutter = self._player.width + (self._player.width // 2)
             player_2_x = self._player.position.x + gutter
             player_2_y = self._player.position.y
             self._player2 = player.Player(
@@ -184,18 +218,23 @@ class Level0(Scene):
                 self._sprite_dict["second_hero"],
                 player_speed = self._player_speed
             )
+        else:
+            self._player2 = None
 
     def update_lives(self, value):
         """update the lives of the player"""
+        gs = self._game_settings
+        cd = rgbcolors.color_dictionary
 
         templives = self._lives + value
         self._lives = templives if templives >= 0 else 0
+        gs["current_lives_p1"] = self._lives
 
         self._lives_surface = pygame.font.Font.render(
             self._score_font,
             f"Lives: x{self._lives}",
             True,
-            rgbcolors.ghostwhite
+            cd[gs["ingame_font_color"]]
         )
 
         if not self._lives:
@@ -246,12 +285,15 @@ class Level0(Scene):
 
     def update_score(self, value):
         """update the player score"""
-        lock = threading.Lock()
-        lock.acquire()
+
+        gs = self._game_settings
+        cd = rgbcolors.color_dictionary
 
         oldscore = self._score
         tempscore = self._score + value
         self._score = tempscore if tempscore >= 0 else 0
+        gs["current_score_p1"] = self._score
+
 
         life_oldscore = oldscore % 20000
         life_newscore = tempscore % 20000
@@ -261,9 +303,9 @@ class Level0(Scene):
         if (value > 0
         and self._score > 0
         and life_newscore < life_oldscore
-        and nearest_multiple not in self._oneups):
+        and nearest_multiple not in gs["oneups"]):
             self.update_lives(1)
-            self._oneups.append(nearest_multiple)
+            gs["oneups"].append(nearest_multiple)
 
         powup_oldscore = oldscore % 2000
         powup_newscore = tempscore % 2000
@@ -280,7 +322,7 @@ class Level0(Scene):
             self._score_font,
             f"Score: {self._score}",
             True,
-            rgbcolors.ghostwhite
+            cd[gs["ingame_font_color"]]
         )
 
     def _make_enemies(self):
@@ -326,12 +368,16 @@ class Level0(Scene):
         self.update_lives(-1)
 
     def kill_player2(self):
-        self._explosions.append(Explosion(self._player2, self._sprite_dict["explosion"], self._player2.width))
-        self._explosion_sound.play()
-        self._player2.position = pygame.math.Vector2(self._width // 2, self._height - (10 + self._screen.get_height() // PLAYER_SIZE_MODIFIER))
-        self._player2.invincible_clock()
-        # self.update_score(int(-100 * self._difficulty_mod))
-        # self.update_lives(-1)
+        if self._player2 is not None:
+            gutter = self._player.width + (self._player.width // 2)
+            player_2_x = self._player.position.x + gutter
+            player_2_y = self._player.position.y
+            self._explosions.append(Explosion(self._player2, self._sprite_dict["explosion"], self._player2.width))
+            self._explosion_sound.play()
+            self._player2.position = pygame.math.Vector2(player_2_x, player_2_y)
+            self._player2.invincible_clock()
+            # self.update_score(int(-100 * self._difficulty_mod))
+            # self.update_lives(-1)
 
 
     # pylint: disable=too-many-statements too-many-branches
@@ -487,67 +533,69 @@ class Level0(Scene):
                     self._powerups.remove(powup)
 
     def player_move(self, player, joystick, event):
-        if player is not None and not player.is_dead:
-            if (
-                (event.type == pygame.KEYDOWN
-                 and event.key == pygame.K_SPACE)
-                or
-                (event.type == pygame.JOYBUTTONDOWN
-                 and (event.button == 0
-                 or event.button == 7
-                 or event.button == 6)
-                 and event.instance_id == joystick
-                 )
+        try:
+            if player is not None and not player.is_dead:
+                if (
+                    (event.type == pygame.KEYDOWN
+                    and event.key == pygame.K_SPACE)
+                    or
+                    (event.type == pygame.JOYBUTTONDOWN
+                    and (event.button == 0
+                    or event.button == 7
+                    or event.button == 6)
+                    and event.instance_id == self._joysticks[joystick].get_instance_id()
+                    )
 
-            ):
+                ):
+                    match (player.powerup):
+                        case "burst":
+                            (_, height) = self._screen.get_size()
 
-                match (player.powerup):
-                    case "burst":
-                        (_, height) = self._screen.get_size()
+                            bullet_asset = self._sprite_dict["playerbullet"]
 
-                        bullet_asset = self._sprite_dict["playerbullet"]
+                            newpos = pygame.math.Vector2(
+                                player.position.x + (player.width // 2) - (bullet_asset.get_width() // 2), player.position.y
+                            )
+                            bullet_target = newpos - pygame.math.Vector2(0, height)
+                            self._bullets.append(
+                                bullets.PlayerBulletOneThird(newpos, bullet_target, 20, bullet_asset)
+                            )
+                            self._bullets.append(
+                                bullets.PlayerBulletOneThird(newpos, bullet_target, 18, bullet_asset)
+                            )
+                            self._bullets.append(
+                                bullets.PlayerBulletOneThird(newpos, bullet_target, 16, bullet_asset)
+                            )
 
-                        newpos = pygame.math.Vector2(
-                            player.position.x + (player.width // 2) - (bullet_asset.get_width() // 2), player.position.y
-                        )
-                        bullet_target = newpos - pygame.math.Vector2(0, height)
-                        self._bullets.append(
-                            bullets.PlayerBulletOneThird(newpos, bullet_target, 20, bullet_asset)
-                        )
-                        self._bullets.append(
-                            bullets.PlayerBulletOneThird(newpos, bullet_target, 18, bullet_asset)
-                        )
-                        self._bullets.append(
-                            bullets.PlayerBulletOneThird(newpos, bullet_target, 16, bullet_asset)
-                        )
+                        case _:
+                            (_, height) = self._screen.get_size()
 
-                    case _:
-                        (_, height) = self._screen.get_size()
+                            bullet_asset = self._sprite_dict["playerbullet"]
 
-                        bullet_asset = self._sprite_dict["playerbullet"]
+                            newpos = pygame.math.Vector2(
+                                player.position.x + + (player.width // 2) - (bullet_asset.get_width() // 2), player.position.y
+                            )
+                            bullet_target = newpos - pygame.math.Vector2(0, height)
+                            velocity = 20
+                            self._bullets.append(
+                                bullets.PlayerBullet(newpos, bullet_target, velocity, bullet_asset)
+                            )
 
-                        newpos = pygame.math.Vector2(
-                            player.position.x + + (player.width // 2) - (bullet_asset.get_width() // 2), player.position.y
-                        )
-                        bullet_target = newpos - pygame.math.Vector2(0, height)
-                        velocity = 20
-                        self._bullets.append(
-                            bullets.PlayerBullet(newpos, bullet_target, velocity, bullet_asset)
-                        )
+                if self._joysticks:
+                    axis = self._joysticks[joystick].get_axis(0)
 
-            if self._joysticks:
-                axis = self._joysticks[joystick].get_axis(0)
-
-                if -0.1 < axis < 0.1:
-                    axis = 0
+                    if -0.1 < axis < 0.1:
+                        axis = 0
 
 
-                if axis > 0.1:
-                    player.move_right(axis)
-                if axis < -0.1:
-                    player.move_left(axis)
-                if axis == 0:
-                    player.stop()
+                    if axis > 0.1:
+                        player.move_right(axis)
+                    if axis < -0.1:
+                        player.move_left(axis)
+                    if axis == 0:
+                        player.stop()
+        except IndexError as e:
+            print("Exception encountered. Trying not to crash the thread.")
 
     def process_event(self, event):
         super().process_event(event)
@@ -586,11 +634,11 @@ class Level0(Scene):
             pygame.mixer.music.stop()
 
         if self._quit:
-            return ["q"]
+            return ["QUIT_GAME"]
         if not self._lives:
-            return ["l", self._score]
+            return ["CHANGE_SCENE", "GameOverScene"]
         if not self._enemies:
-            return ["w", [self._score, self._lives, self._oneups]]
+            return ["CHANGE_SCENE", "LeaderboardScene"]
 
     def draw(self):
         super().draw()

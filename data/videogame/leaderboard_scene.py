@@ -5,6 +5,7 @@ import pygame
 from .press_any_key_to_exit_scene import PressAnyKeyToExitScene
 from . import rgbcolors
 from . import theme
+from .constants import save_path
 
 from datetime import datetime
 import time
@@ -16,31 +17,72 @@ class LeaderboardScene(PressAnyKeyToExitScene):
     def __init__(
         self,
         screen,
-        score,
-        lives,
-        oneups = None,
-        background_color=rgbcolors.black,
-        soundtrack=None,
-        skin="default",
-        victorytext = "VICTORY!",
-        continuetext = "Continue (Y/N)?"
+        game_settings,
+        # score,
+        # lives,
+        # oneups = None,
+        # background_color=rgbcolors.black,
+        # soundtrack=None,
+        # skin="default",
+        # victorytext = "VICTORY!",
+        # continuetext = "Continue (Y/N)?"
     ):
         """initialize a leaderboard"""
-        super().__init__(screen, background_color, soundtrack,skin=skin)
+        super().__init__(screen, game_settings)
 
-        screen_height = screen.get_height()
+        self._score = None
+        self._lives_p1 = None
+        self._lives = None
+        self._lives_p2 = None
+        self._y = False
+
+        self._you_win = None
+
+        self._lb_font = None
+
+        self._confirm_screen = None
+        self.update_settings()
+
+    def reset_scene(self):
+        super().reset_scene()
+
+        self.__init__(self._screen, self._game_settings)
+
+    def process_event(self, event):
+        """Process game events."""
+
+        if time.time() >= self._timestart + 3:
+            if (
+                event.type == pygame.KEYDOWN and event.key == pygame.K_y
+                or
+                event.type == pygame.JOYBUTTONDOWN and event.button == 0):
+                self._y = True
+
+            super().process_event(event)
+
+    def set_score(self, value):
+        """set the score"""
+
+        self._score = value
+
+    def update_settings(self, new_settings = None):
+        super().update_settings()
+        gs = self._game_settings
+        cd = rgbcolors.color_dictionary
+
+        screen_height = self._screen.get_height()
 
         title_font_size = screen_height // 11
         lb_font_size = confirm_font_size = screen_height // 57
 
         string_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), title_font_size)
-        self._score = score
-        self._lives = lives
-        self._y = False
-        self._oneups = [] if oneups is None else oneups
+        self._score = gs["current_score_p1"]
+        self._score_p2 = gs["current_score_p2"]
+        self._lives = gs["current_lives_p1"]
+        self._lives_p2 = gs["current_lives_p2"]
 
         self._you_win = pygame.font.Font.render(
-            string_font, victorytext, True, rgbcolors.ghostwhite
+            string_font, gs["victory"], True, cd[gs["victory_text_color"]]
         )
 
         # pylint: disable=redefined-outer-name
@@ -59,25 +101,9 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         confirm_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), confirm_font_size)
 
         self._confirm_screen = pygame.font.Font.render(
-            confirm_font, continuetext, True, rgbcolors.ghostwhite
+            confirm_font, gs["continueyn"], True, rgbcolors.ghostwhite
         )
 
-    def process_event(self, event):
-        """Process game events."""
-
-        if time.time() >= self._timestart + 3:
-            if (
-                event.type == pygame.KEYDOWN and event.key == pygame.K_y
-                or
-                event.type == pygame.JOYBUTTONDOWN and event.button == 0):
-                self._y = True
-
-            super().process_event(event)
-
-    def set_score(self, value):
-        """set the score"""
-
-        self._score = value
 
     def draw(self):
         """Draw the scene."""
@@ -128,8 +154,12 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         self._y = False
 
         if self._quit:
-            return ["q"]
-        if yes:
-            return ["ly", [self._score, self._lives, self._oneups]]
+            return ["QUIT_GAME"]
+        elif yes and self._lives == 0:
+            return ["RST_CHANGE_SCENE", "Level0"]
+        elif not yes:
+            return ["RST_CHANGE_SCENE", "PolygonTitleScene"]
+        else:
+            return ["CHANGE_LEVEL"]
 
-        return ["gn"]
+        return ["RST_CHANGE_SCENE"]

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-"""
-Imports the the game demo and executes the main function.
-"""
+"""Play the game"""
 
 import sys
 import os
@@ -10,7 +8,7 @@ import argparse
 
 from copy import deepcopy
 # pylint: disable=import-error
-from videogame import game
+from videogame.game import InvaderClone
 from videogame.rgbcolors import color_dictionary as cd
 
 _main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -44,10 +42,16 @@ def main():
     window_settings.add_argument("--height", default=800, type=int, help="window height (default 800)")
     window_settings.add_argument("-n", "--name", default="Invader Clone", help="change the name of the game")
 
+    game_settings = parser.add_argument_group(title="game settings", description="modify core game functionality")
+    game_settings.add_argument("--frame_rate", default=60, type=int, help="game frame rate")
+    game_settings.add_argument("--disable_gamepads", action="store_true", help="disable the use of gamepads (if for some reason it doesn't work)")
+    game_settings.add_argument("--disable_multiplayer", action="store_true", help="disable multiplayer functionality")
+
     difficulty_settings = parser.add_argument_group(title="difficulty settings", description="modify various difficulty settings")
     difficulty_settings.add_argument("-d", "--difficulty_step", default=25.0, type=float, help="increase the difficulty by this percent every round (default 25.0)")
     difficulty_settings.add_argument("-r", "--rows", default=4, type=int, help="how many rows of enemies there are (default 5)")
     difficulty_settings.add_argument("-c", "--columns", default=12, type=int, help="how many columns of enemies there are (default 9)")
+    difficulty_settings.add_argument("--starting_lives", default=3, type=int, help="the number of lives to start with for each player")
     difficulty_settings.add_argument("--player_speed", type=float, default=15., help="change the speed of the player")
     difficulty_settings.add_argument("--enemy_speed", type=float, default=5., help="change the base speed of enemies")
     difficulty_settings.add_argument("--obstacle_speed", type=float, default=7., help="change the base speed of obstacles")
@@ -71,13 +75,19 @@ def main():
     mainmenu_text_settings.add_argument("--subtitle1", default="全部のネコ宇宙人を倒す！ 動く：'←'／'→' 撃つ：'SPACE'", help="subtitle 1 text")
     mainmenu_text_settings.add_argument("--subtitle2", default="Kill all cat aliens! Move: '←'/'→' Shoot: 'SPACE'", help="subtitle 2 text")
     mainmenu_text_settings.add_argument("--press_any_key", default="Press ANY KEY!", help="press any key text")
-    mainmenu_text_settings.add_argument("--victory", default="VICTORY!", help="victory text")
     mainmenu_text_settings.add_argument("--continueyn", default="Continue (Y/N)?", help="continue game text")
     mainmenu_text_settings.add_argument("--game_over", default="GAME OVER!", help="game over text")
     mainmenu_text_settings.add_argument("--title_text_color", default="ghostwhite", choices=colors, metavar="COLOR NAME", help="title text color")
     mainmenu_text_settings.add_argument("--subtitle1_text_color", default=None, choices=colors, metavar="COLOR NAME", help="subtitle 1 text color")
     mainmenu_text_settings.add_argument("--subtitle2_text_color", default=None, choices=colors, metavar="COLOR NAME", help="subtitle 2 text color")
     mainmenu_text_settings.add_argument("--press_any_key_text_color", default=None, choices=colors, metavar="COLOR NAME", help="press any key text color")
+
+    ingame_text_settings = parser.add_argument_group(title="in-game text settings", description="modify in-game text and colors")
+    ingame_text_settings.add_argument("--ingame_font_color", default="ghostwhite", choices=colors, metavar="COLOR NAME", help="score and lives font color")
+
+    leaderboard_text_settings = parser.add_argument_group(title="leaderboard text settings", description="modify leaderboard text settings")
+    leaderboard_text_settings.add_argument("--victory_text_color", default="ghostwhite", choices=colors, metavar="COLOR NAME", help="victory screen text color")
+    leaderboard_text_settings.add_argument("--victory", default="VICTORY!", help="victory screen text")
 
     args = parser.parse_args()
 
@@ -122,39 +132,17 @@ def main():
 
     game_settings = deepcopy(dict(vars(args)))
 
-    sys.exit(
-        game.InvaderClone(
-            name=args.name,
-            width=args.width,
-            height=args.height,
-            enemy_rows=args.rows,
-            enemy_cols=args.columns,
-            difficulty_step=args.difficulty_step / 100.,
-            theme_name=args.theme,
-            stars=not args.disable_stars,
-            bg=args.enable_background,
-            alttitle=args.alt_title,
-            sub1=args.subtitle1,
-            sub2=args.subtitle2,
-            pak=args.press_any_key,
-            victorytext=args.victory,
-            continuetext=args.continueyn,
-            gameovertext=args.game_over,
-            bg_speed=args.bg_speed,
-            titlebg_color=cd[args.title_bg_color],
-            gamebg_color=cd[args.game_bg_color],
-            leaderboardbg_color=cd[args.leaderboard_bg_color],
-            gameoverbg_color=cd[args.gameover_bg_color],
-            title_color=cd[args.title_text_color],
-            subtitle1_text_color=cd[args.subtitle1_text_color],
-            subtitle2_text_color=cd[args.subtitle2_text_color],
-            pak_text_color=cd[args.press_any_key_text_color],
-            player_speed=args.player_speed,
-            enemy_speed=args.enemy_speed,
-            obstacle_speed=args.obstacle_speed,
-            powerup_speed=args.powerup_speed,
-            obstacle_chance = args.obstacle_chance,
-            ).run()
+    # Modify Game Settings
+    game_settings["default_bg"] = cd["black"]
+    game_settings["default_soundtrack"] = None
+    game_settings["current_difficulty_modifier"] = 1.0
+    game_settings["current_score_p1"] = 0
+    game_settings["current_score_p2"] = 0
+    game_settings["current_lives_p1"] = deepcopy(game_settings["starting_lives"])
+    game_settings["current_lives_p2"] = deepcopy(game_settings["starting_lives"])
+    game_settings["oneups"] = []
+
+    sys.exit(InvaderClone(game_settings).run()
         )
 
 if __name__ == "__main__":

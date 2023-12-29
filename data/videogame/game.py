@@ -1,11 +1,17 @@
 """Game objects to create PyGame based games."""
 
 import os
+import sys
+import importlib
 import warnings
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 import pygame
+
+import re
+
+from copy import deepcopy
 
 from . import rgbcolors
 from . import theme
@@ -13,8 +19,7 @@ from . import scene
 from .polygon_title_scene import PolygonTitleScene
 from .leaderboard_scene import LeaderboardScene
 from .game_over_scene import GameOverScene
-from .level0 import Level0
-
+from .constants import LEVELS_DIR
 
 def display_info():
     """Print out information about the display driver and video information."""
@@ -27,18 +32,18 @@ class VideoGame:
 
     def __init__(
         self,
-        window_width=1820,
-        window_height=1024,
-        window_title="My Awesome Game",
-        theme_name="default"
+        game_settings
     ):
         """Initialize new game with given window size & window title."""
         pygame.init()
         pygame.joystick.init()
-        self._window_size = (window_width, window_height)
+        self._game_settings = game_settings
+        gs = self._game_settings
+
+        self._window_size = (gs["width"], gs["height"])
         self._clock = pygame.time.Clock()
         self._screen = pygame.display.set_mode(self._window_size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self._title = window_title
+        self._title = gs["name"]
         pygame.display.set_caption(self._title)
         self._game_is_over = False
         if not pygame.font:
@@ -47,7 +52,7 @@ class VideoGame:
             warnings.warn("Sound disabled.", RuntimeWarning)
         self._scene_graph = None
 
-        self._theme = theme.Theme(theme_name)
+        self._theme = theme.Theme(gs["theme"])
 
         icon = pygame.image.load(self._theme.get("title_icon", theme.FALLBACK_IMG))
         icon_img = pygame.transform.scale(icon, (128,128))
@@ -71,276 +76,109 @@ class InvaderClone(VideoGame):
     """Show a colored window with a colored message and a polygon."""
 
     def __init__(self,
-                name="Invader Clone",
-                enemy_rows=4,
-                enemy_cols=8,
-                difficulty_step=0.05,
-                theme_name="default",
-                powup=True,
-                enable_multiplayer=True,
-                width=1820,
-                height=1024,
-                stars=True,
-                bg=False,
-                alttitle = None,
-                sub1 = "全部のネコ宇宙人を倒す！ 動く：'←'／'→' 撃つ：'SPACE'",
-                sub2 = "Kill all cat aliens! Move: '←'/'→' Shoot: 'SPACE'",
-                pak = "Press ANY KEY!",
-                victorytext = "VICTORY!",
-                continuetext = "Continue (Y/N)?",
-                gameovertext = "GAME OVER!",
-                bg_speed = 6,
-                titlebg_color = rgbcolors.black,
-                gamebg_color = rgbcolors.black,
-                leaderboardbg_color = rgbcolors.black,
-                gameoverbg_color = rgbcolors.black,
-                title_color = rgbcolors.ghostwhite,
-                subtitle1_text_color = None,
-                subtitle2_text_color = None,
-                pak_text_color = None,
-                player_speed = 15.,
-                enemy_speed = 5.,
-                obstacle_speed = 7.,
-                powerup_speed = 20.,
-                powerup_chance = 13,
-                obstacle_chance = 0.004,
+                game_settings
                 ):
         """Init the Pygame demo."""
-        super().__init__(window_title=name, window_width=width, window_height=height, theme_name=theme_name)
+        super().__init__(game_settings)
 
         self._main_dir = os.path.dirname(os.path.realpath(__file__))
         self._data_dir = os.path.join(self._main_dir, "data")
 
-        self._title_color = title_color
-        self._subtitle1_color = subtitle1_text_color
-        self._subtitle2_color = subtitle2_text_color
-        self._pak_color = pak_text_color
-
-        self._titlebg_color = titlebg_color
-        self._gamebg_color = gamebg_color
-        self._leaderboardbg_color = leaderboardbg_color
-        self._gameoverbg_color = gameoverbg_color
-
-        self._difficulty_step = difficulty_step
-        self._stars = stars
-        self._bg = bg
-        self._bg_speed = bg_speed
-        self._skin = theme_name
-
-        #Title Screen Settings:
-        self._alttitle = alttitle
-        self._sub1 = sub1
-        self._sub2 = sub2
-        self._pak = pak
-
-        #Leaderboard Settings:
-        self._victorytext = victorytext
-        self._continuetext = continuetext
-
-        #Game Over Settings
-        self._gameovertext = gameovertext
-
-        self._enemy_rows = enemy_rows
-        self._enemy_cols = enemy_cols
-
-        self._player_speed = player_speed
-        self._enemy_speed = enemy_speed
-        self._obstacle_speed = obstacle_speed
-        self._powerup_speed = powerup_speed
-        self._powup_chance = powerup_chance
-        self._obstacle_chance = obstacle_chance
-
         #print("Starting the game...")
 
+        levels = sorted([os.path.join(LEVELS_DIR, level) for level in os.listdir(LEVELS_DIR) if re.match(r'level[0-9]+.py', level)])
+
+        level_modules = {}
+        self._level_classes = {}
+
+        for level in levels:
+            module_name, _ = os.path.splitext(os.path.basename(level))
+            spec = importlib.util.spec_from_file_location(f"videogame.{module_name}", level)
+            level_modules[f"videogame.{module_name}"] = importlib.util.module_from_spec(spec)
+            sys.modules[f"videogame.{module_name}"] = level_modules[f"videogame.{module_name}"]
+            spec.loader.exec_module(level_modules[f"videogame.{module_name}"])
+
+            class_name = f"{module_name[0].upper()}{module_name[1:]}"
+            self._level_classes[class_name] = getattr(sys.modules[f"videogame.{module_name}"], class_name)
         self.build_scene_graph()
 
     def build_scene_graph(self):
         """Build scene graph for the game demo."""
 
         the_screen = self._screen
-        self._scene_graph = [
-            PolygonTitleScene(
+        self._scene_dict = {
+            "PolygonTitleScene" : PolygonTitleScene(
                 the_screen,
-                self._title,
-                title_color=self._title_color,
-                soundtrack=self._theme.get("title_music", theme.FALLBACK_SND),
-                skin=self._skin,
-                alttitle = self._alttitle,
-                sub1 = self._sub1,
-                sub2 = self._sub2,
-                pak = self._pak,
-                background_color = self._titlebg_color,
-                subtitle1_color = self._subtitle1_color,
-                subtitle2_color = self._subtitle2_color,
-                pak_color = self._pak_color,
+                self._game_settings
                 ),
-            Level0(
+            "LeaderboardScene" : LeaderboardScene(
                 the_screen,
-                soundtrack=self._theme.get("game_music", theme.FALLBACK_SND),
-                num_rows=self._enemy_rows,
-                num_cols=self._enemy_cols,
-                stars=self._stars,
-                bg=self._bg,
-                bg_speed=self._bg_speed,
-                skin=self._skin,
-                bg_color = self._gamebg_color,
-                player_speed = self._player_speed,
-                enemy_speed = self._enemy_speed,
-                obstacle_speed = self._obstacle_speed,
-                powerup_speed = self._powerup_speed,
-                powerup_chance = self._powup_chance,
-                obstacle_chance = self._obstacle_chance,
+                self._game_settings
                 ),
-            LeaderboardScene(
-                the_screen,
-                0,
-                0,
-                soundtrack=self._theme.get("leaderboard_music", theme.FALLBACK_SND),
-                victorytext=self._victorytext,
-                continuetext=self._continuetext,
-                background_color = self._leaderboardbg_color
-                ),
-            GameOverScene(
-                the_screen,
-                0,
-                soundtrack=self._theme.get("gameover_music", theme.FALLBACK_SND),
-                skin=self._skin,
-                gameovertext=self._gameovertext,
-                continuetext=self._continuetext,
-                background_color = self._gameoverbg_color
-                )
-        ]
+            # "GameOverScene" : GameOverScene(
+            #     the_screen,
+            #     self._game_settings
+            #     )
+        }
+
+        for level_name, LevelClass in self._level_classes.items():
+            self._scene_dict[level_name] = LevelClass(the_screen, self._game_settings)
 
     def run(self):
         """Run the game; the main game loop."""
-        scene_iterator = self._scene_graph
-        current_idx = 0
-
-        diff = 1.0
+        scene_iterator = self._scene_dict
+        current_scene_string = "PolygonTitleScene"
+        current_level = 0
+        num_levels = len(self._level_classes.keys())
 
         while not self._game_is_over:
-            current_scene = scene_iterator[current_idx]
+            current_scene = scene_iterator[current_scene_string]
             current_scene.clock()
             current_scene.start_scene()
+            current_scene.update_settings()
+            reference_settings = deepcopy(self._game_settings)
 
             while current_scene.is_valid():
                 self._clock.tick(current_scene.frame_rate())
                 for event in pygame.event.get():
                     current_scene.process_event(event)
                 current_scene.update_scene()
+                if reference_settings != self._game_settings:
+                    current_scene.update_settings()
                 current_scene.draw()
                 pygame.display.update()
             command = current_scene.end_scene()
+            current_scene.reset_scene()
 
             match command:
-                case ['q']:
+                case ['QUIT_GAME']:
                     self._game_is_over = True
-                case ['p']:
-                    current_idx = 1
-                case ['l', scr]:
-                    self._scene_graph[3] = GameOverScene(
-                        self._screen,
-                        scr,
-                        soundtrack=self._theme.get("gameover_music", theme.FALLBACK_SND),
-                        skin=self._skin,
-                        background_color = self._gameoverbg_color
-                    )
-                    difficulty = 1.0
-                    current_idx = 3
-                case ['w', scr]:
-                    current_idx = 3
-                    self._scene_graph[3] = LeaderboardScene(
-                        self._screen,
-                        scr[0],
-                        scr[1],
-                        scr[2],
-                        soundtrack=self._theme.get("leaderboard_music", theme.FALLBACK_SND),
-                        skin=self._skin,
-                        victorytext=self._victorytext,
-                        continuetext=self._continuetext,
-                        background_color = self._leaderboardbg_color
-                        )
-                    difficulty = 1.0
-                case ['ly', scr]:
-                    current_idx = 1
-                    diff = diff + self._difficulty_step
-                    self._scene_graph[1] = Level0(
-                        self._screen,
-                        self._theme.get("game_music", theme.FALLBACK_SND),
-                        scr[0],
-                        scr[1],
-                        scr[2],
-                        num_rows=self._enemy_rows,
-                        num_cols=self._enemy_cols,
-                        difficulty=diff,
-                        stars=self._stars,
-                        bg=self._bg,
-                        bg_speed=self._bg_speed,
-                        skin=self._skin,
-                        bg_color = self._gamebg_color,
-                        player_speed = self._player_speed,
-                        enemy_speed = self._enemy_speed,
-                        obstacle_speed = self._obstacle_speed,
-                        powerup_speed = self._powerup_speed,
-                        powerup_chance = self._powup_chance,
-                        obstacle_chance = self._obstacle_chance,
-                        )
-                case ['gn']:
-                    current_idx = 0
-                    self._scene_graph[0] = PolygonTitleScene(
-                        self._screen,
-                        self._title,
-                        title_color=rgbcolors.ghostwhite,
-                        soundtrack=self._theme.get("title_music", theme.FALLBACK_SND),
-                        skin=self._skin,
-                        alttitle = self._alttitle,
-                        sub1 = self._sub1,
-                        sub2 = self._sub2,
-                        pak = self._pak,
-                        background_color = self._titlebg_color,
-                        subtitle1_color = self._subtitle1_color,
-                        subtitle2_color = self._subtitle2_color,
-                        pak_color = self._pak_color,
-                    )
-                    self._scene_graph[1] = Level0(
-                        self._screen,
-                        soundtrack=self._theme.get("game_music", theme.FALLBACK_SND),
-                        num_rows=self._enemy_rows,
-                        num_cols=self._enemy_cols,
-                        difficulty=diff,
-                        stars=self._stars,
-                        bg=self._bg,
-                        bg_speed=self._bg_speed,
-                        skin=self._skin,
-                        bg_color = self._gamebg_color,
-                        player_speed = self._player_speed,
-                        enemy_speed = self._enemy_speed,
-                        obstacle_speed = self._obstacle_speed,
-                        powerup_speed = self._powerup_speed,
-                        powerup_chance = self._powup_chance,
-                        obstacle_chance = self._obstacle_chance,
-                        )
-                    difficulty = 1.0
-                case ['gy']:
-                    current_idx = 1
-                    self._scene_graph[1] = Level0(
-                        self._screen,
-                        soundtrack=self._theme.get("game_music", theme.FALLBACK_SND),
-                        num_rows=self._enemy_rows,
-                        num_cols=self._enemy_cols,
-                        difficulty=diff,
-                        stars=self._stars,
-                        bg=self._bg,
-                        bg_speed=self._bg_speed,
-                        skin=self._skin,
-                        bg_color = self._gamebg_color,
-                        player_speed = self._player_speed,
-                        enemy_speed = self._enemy_speed,
-                        obstacle_speed = self._obstacle_speed,
-                        powerup_speed = self._powerup_speed,
-                        powerup_chance = self._powup_chance,
-                        obstacle_chance = self._obstacle_chance,
-                        )
-                    difficulty = 1.0
+                case ['CHANGE_SCENE', scene_name]:
+                    current_scene_string = scene_name
+                case ['CHANGE_LEVEL']:
+                    if current_level != num_levels - 1:
+                        current_level += 1
+                    elif current_level != 0:
+                        current_level = 0
+
+                    game_settings = self._game_settings
+
+                    dm = game_settings["current_difficulty_modifier"] + (game_settings["difficulty_step"] / 100)
+
+                    game_settings["current_difficulty_modifier"] = dm
+
+                    current_scene_string = f"Level{current_level}"
+                case ['RST_CHANGE_SCENE', scene_name]:
+                    game_settings = self._game_settings
+                    game_settings["current_difficulty_modifier"] = 1.0
+                    game_settings["current_score_p1"] = 0
+                    game_settings["current_score_p2"] = 0
+                    game_settings["current_lives_p1"] = deepcopy(game_settings["starting_lives"])
+                    game_settings["current_lives_p2"] = deepcopy(game_settings["starting_lives"])
+                    game_settings["oneups"] = []
+
+                    current_level = 0
+
+                    current_scene_string = scene_name
         pygame.quit()
         return 0

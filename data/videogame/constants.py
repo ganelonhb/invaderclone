@@ -13,6 +13,7 @@ PLAYER_SIZE_MODIFIER = 12
 ENEMY_SIZE_MODIFIER = 24
 
 _main_dir = path.split(path.abspath(__file__))[0]
+LEVELS_DIR = _main_dir
 DATA_DIR = path.join(_main_dir, "data")
 
 _docsdir = ".config" if platform in UNIX_SYSTEMS else "Documents"

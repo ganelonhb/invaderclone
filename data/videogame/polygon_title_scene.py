@@ -13,35 +13,44 @@ class PolygonTitleScene(PressAnyKeyToExitScene):
     def __init__(
         self,
         screen,
-        title,
-        title_color=rgbcolors.ghostwhite,
-        title_size=72,
-        background_color=rgbcolors.black,
-        soundtrack=None,
-        skin="default",
-        alttitle = None,
-        sub1 = "全部のネコ宇宙人を倒す！ 動く：'←'／'→' 撃つ：'SPACE'",
-        sub2 = "Kill all cat aliens! Move: '←'/'→' Shoot: 'SPACE'",
-        pak = "Press ANY KEY!",
-        subtitle1_color=None,
-        subtitle2_color=None,
-        pak_color=None,
+        game_settings,
     ):
         """Initialize the scene."""
 
-        super().__init__(screen, background_color, soundtrack, skin=skin)
-        SUBTITLE1_COLOR = subtitle1_color
-        SUBTITLE2_COLOR = subtitle2_color
-        PAK_COLOR = pak_color
+        super().__init__(screen, game_settings)
 
-        if subtitle1_color is None:
-            SUBTITLE1_COLOR = title_color
-        if subtitle2_color is None:
-            SUBTITLE2_COLOR = subtitle1_color if subtitle1_color is not None else title_color
-        if pak_color is None:
-            PAK_COLOR = title_color
+        self._title = None
+        self._subtitle = None
+        self._subtitle_en = None
+        self._press_any_key = None
+        img = None
+        self._title_img = None
+        self.update_settings()
 
-        screen_height = screen.get_height()
+    def reset_scene(self):
+        super().reset_scene()
+
+        self.__init__(self._screen, self._game_settings)
+
+    def update_settings(self, new_settings = None):
+        super().update_settings()
+        gs = self._game_settings if new_settings is None else new_settings
+        cd = rgbcolors.color_dictionary
+
+        self._background.fill(cd[gs["title_bg_color"]])
+
+        SUBTITLE1_COLOR = cd[gs["subtitle1_text_color"]]
+        SUBTITLE2_COLOR = cd[gs["subtitle2_text_color"]]
+        PAK_COLOR = cd[gs["press_any_key_text_color"]]
+
+        if SUBTITLE1_COLOR is None:
+            SUBTITLE1_COLOR = cd[gs["title_text_color"]]
+        if SUBTITLE2_COLOR is None:
+            SUBTITLE2_COLOR = cd[gs["subtitle1_text_color"]] if cd[gs["subtitle1_text_color"]] is not None else cd[gs["title_text_color"]]
+        if PAK_COLOR is None:
+            PAK_COLOR = cd[gs["title_text_color"]]
+
+        screen_height = self._screen.get_height()
 
         title_modded_size = screen_height // 11
         subtitle_size = screen_height // 50
@@ -56,32 +65,32 @@ class PolygonTitleScene(PressAnyKeyToExitScene):
         subpixel_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), subpixel_size)
 
 
-        TITLE = title if alttitle is None else alttitle
+        TITLE = gs["name"] if gs["alt_title"] is None else gs["alt_title"]
         self._title = pygame.font.Font.render(
             title_font,
             TITLE,
             True,
-            title_color)
+            cd[gs["title_text_color"]])
 
         self._subtitle = pygame.font.Font.render(
             subtitle_font,
-            sub1,
+            gs["subtitle1"],
             True,
             SUBTITLE1_COLOR,
         )
 
         self._subtitle_en = pygame.font.Font.render(
             subpixel_font,
-            sub2,
+            gs["subtitle2"],
             True,
             SUBTITLE2_COLOR,
         )
 
         self._press_any_key = pygame.font.Font.render(
-            string_font, pak, True, PAK_COLOR
+            string_font, gs["press_any_key"], True, PAK_COLOR
         )
 
-        _, height = screen.get_size()
+        _, height = self._screen.get_size()
         img_size = height // 8
 
         img = pygame.image.load(self._theme.get("title_icon", theme.FALLBACK_IMG)).convert_alpha()
