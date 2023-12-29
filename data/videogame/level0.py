@@ -394,7 +394,7 @@ class Level0(Scene):
 
         spawn_obstacle_uniform = uniform(0, 101)
         if spawn_obstacle_uniform < min(13.33, self._obstacle_chance + (self._difficulty_mod - 1.)):
-            print(f"{spawn_obstacle_uniform}/{ min(10, self._obstacle_chance + (self._difficulty_mod - 1.))}")
+            #print(f"{spawn_obstacle_uniform}/{ min(10, self._obstacle_chance + (self._difficulty_mod - 1.))}")
             self.spawn_obstacle()
 
         self._player.update()

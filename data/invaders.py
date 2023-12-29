@@ -57,7 +57,7 @@ def main():
     difficulty_settings.add_argument("--obstacle_speed", type=float, default=7., help="change the base speed of obstacles")
     difficulty_settings.add_argument("--powerup_speed", type=float, default=5., help="change the speed of powerups")
     difficulty_settings.add_argument("--powerup_chance", type=int, default=13, help = "percent chance a powerup spawns at the powerup score")
-    difficulty_settings.add_argument("--obstacle_chance", type=float, default=0.4, help = "percent chance an obstacle spawns any given frame")
+    difficulty_settings.add_argument("--obstacle_chance", type=float, default=0.04, help = "percent chance an obstacle spawns any given frame")
 
 
     theme_settings = parser.add_argument_group(title="theme settings", description="modify generic theme settings")

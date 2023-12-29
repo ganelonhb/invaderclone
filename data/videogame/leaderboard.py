@@ -3,13 +3,14 @@
 import pickle
 from os.path import join
 
+LEADERBOARD_VERSION_NAME = "beebo"
 
 class Leaderboard:
     """a leaderboard"""
 
     def __init__(self):
         """initialize a leaderbaord"""
-
+        self._version_name = LEADERBOARD_VERSION_NAME
         self._scores = []
 
     def add_score(self, score):
@@ -22,6 +23,10 @@ class Leaderboard:
             self._scores.pop()
         self._scores.append(score)
         self.sort()
+
+    @property
+    def version_name(self):
+        return self._version_name
 
     @property
     def scores(self):
