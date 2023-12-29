@@ -154,7 +154,7 @@ int main(int argc, char** argv)
 
 	FILE* proccess = popen(command, "w");
 #elif COMPILE_MODE == 1
-	int cliLen = 73;
+	int cliLen = 74;
 	for (int i = 1; i < argc; ++i)
 	{
 		cliLen += strlen(argv[i]) + 1;

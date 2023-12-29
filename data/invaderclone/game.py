@@ -93,13 +93,13 @@ class InvaderClone(VideoGame):
 
         for level in levels:
             module_name, _ = os.path.splitext(os.path.basename(level))
-            spec = importlib.util.spec_from_file_location(f"videogame.{module_name}", level)
-            level_modules[f"videogame.{module_name}"] = importlib.util.module_from_spec(spec)
-            sys.modules[f"videogame.{module_name}"] = level_modules[f"videogame.{module_name}"]
-            spec.loader.exec_module(level_modules[f"videogame.{module_name}"])
+            spec = importlib.util.spec_from_file_location(f"invaderclone.{module_name}", level)
+            level_modules[f"invaderclone.{module_name}"] = importlib.util.module_from_spec(spec)
+            sys.modules[f"invaderclone.{module_name}"] = level_modules[f"invaderclone.{module_name}"]
+            spec.loader.exec_module(level_modules[f"invaderclone.{module_name}"])
 
             class_name = f"{module_name[0].upper()}{module_name[1:]}"
-            self._level_classes[class_name] = getattr(sys.modules[f"videogame.{module_name}"], class_name)
+            self._level_classes[class_name] = getattr(sys.modules[f"invaderclone.{module_name}"], class_name)
         self.build_scene_graph()
 
     def build_scene_graph(self):

@@ -8,21 +8,8 @@ import argparse
 
 from copy import deepcopy
 # pylint: disable=import-error
-from videogame.game import InvaderClone
-from videogame.rgbcolors import color_dictionary as cd
-
-_main_dir = os.path.split(os.path.abspath(__file__))[0]
-_data_dir = os.path.join(_main_dir, "videogame", "data")
-
-UNIX_SYSTEMS = ["aix", "darwin", "freebsd", "linux", "openbsd"]
-WINDOWS_SYSTEMS = ["win32", "win64", "cygwin", "msys", "nt"]
-
-_docsdir = ".config" if sys.platform in UNIX_SYSTEMS else "Documents"
-
-_settingsdir = os.path.join(os.path.expanduser("~"), _docsdir, "invaderclone")
-
-if not os.path.exists(os.path.join(_settingsdir, "themes")):
-    os.makedirs(os.path.join(_settingsdir, "themes"))
+from invaderclone.game import InvaderClone
+from invaderclone.rgbcolors import color_dictionary as cd
 
 def main():
     raw_args = deepcopy(sys.argv)
@@ -101,6 +88,19 @@ def main():
         for color in colors:
             print(f'{color} : ' + ('#%02x%02x%02x' % cd[color]))
         sys.exit(0)
+
+    _main_dir = os.path.split(os.path.abspath(__file__))[0]
+    _data_dir = os.path.join(_main_dir, "invaders", "data")
+
+    UNIX_SYSTEMS = ["aix", "darwin", "freebsd", "linux", "openbsd"]
+    WINDOWS_SYSTEMS = ["win32", "win64", "cygwin", "msys", "nt"]
+
+    _docsdir = ".config" if sys.platform in UNIX_SYSTEMS else "Documents"
+
+    _settingsdir = os.path.join(os.path.expanduser("~"), _docsdir, "invaderclone")
+
+    if not os.path.exists(os.path.join(_settingsdir, "themes")):
+        os.makedirs(os.path.join(_settingsdir, "themes"))
 
     theme_dir = os.path.join(_data_dir, "themes", args.theme) if not os.path.isdir(os.path.join(_settingsdir, "themes", args.theme)) else os.path.join(_settingsdir, "themes", args.theme)
 
