@@ -5,3 +5,4 @@ InvaderClone.exe
 data/env/
 data/build/
 data/invaderclone.egg-info/
+data/dist/
