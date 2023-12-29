@@ -15,11 +15,11 @@ from copy import deepcopy
 
 from . import rgbcolors
 from . import theme
-from . import scene
+from .scene import Scene
 from .polygon_title_scene import PolygonTitleScene
 from .leaderboard_scene import LeaderboardScene
 from .game_over_scene import GameOverScene
-from .constants import LEVELS_DIR
+from .constants import LEVELS_DIR, CUSTOM_LEVELS_DIR
 
 def display_info():
     """Print out information about the display driver and video information."""
@@ -86,7 +86,12 @@ class InvaderClone(VideoGame):
 
         #print("Starting the game...")
 
-        levels = sorted([os.path.join(LEVELS_DIR, level) for level in os.listdir(LEVELS_DIR) if re.match(r'level[0-9]+.py', level)])
+        levels = [os.path.join(LEVELS_DIR, level) for level in os.listdir(LEVELS_DIR) if re.match(r'level[0-9]+.py', level)]
+
+        if not os.path.exists(CUSTOM_LEVELS_DIR):
+            os.makedirs(CUSTOM_LEVELS_DIR)
+
+        levels = sorted(levels + [os.path.join(CUSTOM_LEVELS_DIR, level) for level in os.listdir(CUSTOM_LEVELS_DIR) if re.match(r'level[0-9]+.py', level)])
 
         level_modules = {}
         self._level_classes = {}
@@ -100,6 +105,8 @@ class InvaderClone(VideoGame):
 
             class_name = f"{module_name[0].upper()}{module_name[1:]}"
             self._level_classes[class_name] = getattr(sys.modules[f"invaderclone.{module_name}"], class_name)
+
+            if not isinstance(self._level_classes[class_name], Scene)
         self.build_scene_graph()
 
     def build_scene_graph(self):
