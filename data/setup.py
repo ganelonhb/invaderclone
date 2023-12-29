@@ -1,14 +1,17 @@
 """ Simple setup.py """
 
+from os import path
 from setuptools import setup
 
-with open("../README.md", "r") as f:
+with open("README.md", "r") as f:
     DESCRIPTION=f.read()
 
 setup(
     name="invaderclone",
-    version="1.0",
-    description=DESCRIPTION,
+    version="0.9.0",
+    description="A module Space Invaders clone in Python Pygame",
+    long_description=DESCRIPTION,
+    long_description_content_type='text/markdown',
     packages=["invaderclone"],
     author="Zachary Worcester",
     author_email="zworcester0@csu.fullerton.edu",
