@@ -3,3 +3,5 @@ data/videogame/videogame.egg-info/
 InvaderClone
 InvaderClone.exe
 data/env/
+data/build/
+data/invaderclone.egg-info/

@@ -91,7 +91,7 @@ class InvaderClone(VideoGame):
         if not os.path.exists(CUSTOM_LEVELS_DIR):
             os.makedirs(CUSTOM_LEVELS_DIR)
 
-        levels = sorted(levels + [os.path.join(CUSTOM_LEVELS_DIR, level) for level in os.listdir(CUSTOM_LEVELS_DIR) if re.match(r'level[0-9]+.py', level)])
+        levels = sorted(levels + [os.path.join(CUSTOM_LEVELS_DIR, level) for level in os.listdir(CUSTOM_LEVELS_DIR) if re.match(r'level[0-9]+.py', level) and level != "level0.py"])
 
         level_modules = {}
         self._level_classes = {}
@@ -105,8 +105,6 @@ class InvaderClone(VideoGame):
 
             class_name = f"{module_name[0].upper()}{module_name[1:]}"
             self._level_classes[class_name] = getattr(sys.modules[f"invaderclone.{module_name}"], class_name)
-
-            if not isinstance(self._level_classes[class_name], Scene)
         self.build_scene_graph()
 
     def build_scene_graph(self):
@@ -130,6 +128,9 @@ class InvaderClone(VideoGame):
 
         for level_name, LevelClass in self._level_classes.items():
             self._scene_dict[level_name] = LevelClass(the_screen, self._game_settings)
+
+            if not isinstance(self._scene_dict[level_name], Scene):
+                raise TypeError
 
     def run(self):
         """Run the game; the main game loop."""
