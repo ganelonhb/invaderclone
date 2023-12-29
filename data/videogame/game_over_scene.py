@@ -14,51 +14,63 @@ class GameOverScene(PressAnyKeyToExitScene):
     def __init__(
         self,
         screen,
-        score,
-        background_color=rgbcolors.black,
-        soundtrack=None,
-        skin="default",
-        gameovertext = "GAME OVER!",
-        continuetext = "Continue (Y/N)?"
+        game_settings,
     ):
         """initialize a game over scene"""
 
-        super().__init__(screen, background_color, soundtrack, skin=skin)
+        super().__init__(screen, game_settings)
 
-        screen_height = screen.get_height()
+        self._y = False
+
+        self._score = None
+        self._score_p2 = None
+        self._game_over = None
+        self._confirm_screen = None
+        self._score_message = None
+        self._title_img = None
+
+        self.update_settings()
+
+    def update_settings(self, new_settings=None):
+        gs = self._game_settings if new_settings is None else new_settings
+        cd = rgbcolors.color_dictionary
+
+        screen_height = self._screen.get_height()
         title_font_size = screen_height // 11
         confirm_font_size = screen_height // 57
 
         string_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), title_font_size)
 
-        self._y = False
-
-        self._score = score
-
-        height = screen.get_height() // 8
+        self._score = gs["current_score_p1"]
+        self._score_p2 = gs["current_score_p2"]
 
         self._game_over = pygame.font.Font.render(
-            string_font, gameovertext, True, rgbcolors.ghostwhite
+            string_font, gs["game_over"], True, cd[gs["game_over_text_color"]]
         )
 
         confirm_font = pygame.font.Font(self._theme.get("pixelfont", theme.FALLBACK_FNT), confirm_font_size)
 
         self._confirm_screen = pygame.font.Font.render(
-            confirm_font, continuetext, True, rgbcolors.ghostwhite
+            confirm_font, gs["continueyn"], True, cd[gs["continueyn_text_color"]]
         )
 
-        grammar = "points" if score != 1 else "point"
+        grammar = "points" if gs["current_score_p1"] != 1 else "point"
+
+        score = gs["current_score_p1"]
 
         self._score_message = pygame.font.Font.render(
             confirm_font,
             f"You scored {score} {grammar}.",
             True,
-            rgbcolors.ghostwhite
+            cd[gs["game_over_text_color"]]
         )
 
         img = pygame.image.load(self._theme.get("gameover_icon", theme.FALLBACK_IMG)).convert_alpha()
 
+        height = screen_height // 8
+
         self._title_img = pygame.transform.scale(img, (height, height))
+
 
     def process_event(self, event):
         """Process game events."""
@@ -122,8 +134,8 @@ class GameOverScene(PressAnyKeyToExitScene):
         self._y = False
 
         if self._quit:
-            return ["q"]
+            return ["QUIT_GAME"]
         if yes:
-            return ["gy"]
+            return ['RST_CHANGE_SCENE', "Level0"]
 
-        return ["gn"]
+        return ['RST_CHANGE_SCENE', "PolygonTitleScene"]

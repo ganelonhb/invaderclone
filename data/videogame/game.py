@@ -115,10 +115,10 @@ class InvaderClone(VideoGame):
                 the_screen,
                 self._game_settings
                 ),
-            # "GameOverScene" : GameOverScene(
-            #     the_screen,
-            #     self._game_settings
-            #     )
+            "GameOverScene" : GameOverScene(
+                the_screen,
+                self._game_settings
+                )
         }
 
         for level_name, LevelClass in self._level_classes.items():
