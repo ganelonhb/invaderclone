@@ -1,8 +1,10 @@
-data/invaderclone/__pycache__/
-data/invaderclone/invaderclone.egg-info/
+gamedata/invaderclone/__pycache__/
+gamedata/invaderclone/invaderclone.egg-info/
 InvaderClone
 InvaderClone.exe
-data/env/
-data/build/
-data/invaderclone.egg-info/
-data/dist/
+gamedata/env/
+gamedata/build/
+gamedata/invaderclone.egg-info/
+gamedata/dist/
+gamedata/README.md
+*.swp

@@ -13,29 +13,11 @@
 #define PYTHONNOTFOUND -3
 #define COULDNOTOPENPROCCESS -4
 
-// 0 = portable
-// 1 = system
-#ifndef COMPILE_MODE
-#define COMPILE_MODE 0
-#endif
-
 
 int main(int argc, char** argv)
 {
 
-#if COMPILE_MODE == 1
-	DIR* systemDir = opendir("/opt/invaderclone/");
-	if (!systemDir)
-	{
-		mkdir("/opt/invaderclone/", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	}
-	closedir(systemDir);
-
-	DIR* dir = opendir("/opt/invaderclone/data/env/");
-
-#elif COMPILE_MODE == 0
-	DIR* dir = opendir("./data/env/");
-#endif
+	DIR* dir = opendir("./gamedata/env/");
 
 	// Check if dir "./data/env/" exists.
 	if (dir)
@@ -77,13 +59,8 @@ int main(int argc, char** argv)
 			return PYTHONNOTFOUND;
 		}
 
-#if COMPILE_MODE == 0
-		char command[COMMANDBUFFER] = "python3 -m venv ./data/env";
-		char pipcmd[COMMANDBUFFER] = "./data/env/bin/python -m pip install -r ./data/requirements.txt";
-#elif COMPILE_MODE == 1
-		char command[COMMANDBUFFER] = "python3 -m venv /opt/invaderclone/data/env";
-		char pipcmd[COMMANDBUFFER] = "/opt/invaderclone/data/env/bin/python -m pip install -r /opt/invaderclone/data/requirements.txt";
-#endif
+		char command[COMMANDBUFFER] = "python3 -m venv ./gamedata/env";
+		char pipcmd[COMMANDBUFFER] = "./gamedata/env/bin/python -m pip install invaderclone";
 
 		FILE* python = popen(command, "w");
 
@@ -118,75 +95,108 @@ int main(int argc, char** argv)
 
 	fflush(stdout);
 
+	// Try to update invaderclone.
+
+	char updcmd[COMMANDBUFFER] = "./gamedata/env/bin/python3 -m pip install --upgrade pip invaderclone";
+
+	FILE* updoot = popen(updcmd, "w");
+
+	// does not need to check if update failed. At this point, a failure to update means there is no new version.
+
+	pclose(updoot);
+
+	fflush(stdout);
+
 
 	// Launch the program from the virtual env that was created.
-#if COMPILE_MODE == 0
-	int cliLen = 41;
+
+	const char commandStart[] = "./gamedata/env/bin/python -m invaders";
+	int cliCmdLen = strlen(commandStart) + 1; // This should cover every single token, injected parenthesis when needed, and the basic str above.
+	int seek = cliCmdLen - 1;
+
+	bool encounteredSwitch = false;
+	bool nextHasSwitchOrIsEnd = false;
+	bool lastHasSwitch = true;
+	bool switchMode = false;
 	for (int i = 1; i < argc; ++i)
 	{
-		cliLen += strlen(argv[i]) + 1;
+		encounteredSwitch = argv[i][0] == '-';
+		lastHasSwitch = argv[i-1][0] == '-';
+		nextHasSwitchOrIsEnd = i == argc - 1 || argv[i+1][0] == '-';
+
+		if (encounteredSwitch && !nextHasSwitchOrIsEnd)
+		{
+			switchMode = true;
+		}
+
+		if (switchMode && lastHasSwitch)
+		{
+			++cliCmdLen;
+		}
+
+		if (switchMode && nextHasSwitchOrIsEnd)
+		{
+			++cliCmdLen;
+			switchMode = false;
+		}
+
+
+		cliCmdLen += strlen(argv[i]) + 1;
 	}
 
-	char command[cliLen];
+	char command[cliCmdLen];
+	memset(command, '\0', cliCmdLen);
 
-	char commandStart[] = "./data/env/bin/python ./data/invaders.py";
 	for (int i = 0; i < strlen(commandStart); ++i)
 	{
 		command[i] = commandStart[i];
 	}
 
-	int seek = 40;
 
+	encounteredSwitch = false;
+	nextHasSwitchOrIsEnd = false;
+	lastHasSwitch = true;
+	switchMode = false;
 	for (int i = 1; i < argc; ++i)
 	{
 		command[seek] = ' ';
 		++seek;
+
+		encounteredSwitch = argv[i][0] == '-';
+		lastHasSwitch = argv[i-1][0] == '-';
+		nextHasSwitchOrIsEnd = i == argc - 1 || argv[i+1][0] == '-';
+
+		if (encounteredSwitch && !nextHasSwitchOrIsEnd)
+		{
+			switchMode = true;
+		}
+
+		if (switchMode && lastHasSwitch)
+		{
+			command[seek] = '\"';
+			++seek;
+		}
 
 		for (int j = 0; j < strlen(argv[i]); ++j)
 		{
 			command[seek] = argv[i][j];
 			++seek;
 		}
-	}
 
-	command[seek] = '\0';
-
-
-	FILE* proccess = popen(command, "w");
-#elif COMPILE_MODE == 1
-	int cliLen = 74;
-	for (int i = 1; i < argc; ++i)
-	{
-		cliLen += strlen(argv[i]) + 1;
-	}
-
-	char command[cliLen];
-
-	char commandStart[] = "/opt/invaderclone/data/env/bin/python /opt/invaderclone/data/invaders.py";
-	for (int i = 0; i < strlen(commandStart); ++i)
-	{
-		command[i] = commandStart[i];
-	}
-
-	int seek = 72;
-
-	for (int i = 1; i < argc; ++i)
-	{
-		command[seek] = ' ';
-		++seek;
-
-		for (int j = 0; j < strlen(argv[i]); ++j)
+		if (switchMode && nextHasSwitchOrIsEnd)
 		{
-			command[seek] = argv[i][j];
+			command[seek] = '\"';
 			++seek;
+			switchMode = false;
 		}
+
 	}
 
 	command[seek] = '\0';
+	printf("%s\n", &command);
 
 
 	FILE* proccess = popen(command, "w");
-#endif
 
 
 	// Check if the process could be created, and notify the user if not.

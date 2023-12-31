@@ -10,14 +10,14 @@ X Themes can have arguments
 X Every scene object takes a game_settings arg instead of passing everything around
 X Redo scene graph implementation
 X Replace Explosion with normal sprite
-- README.md
-- upload to pypi
+X README.md
+X upload to pypi
 
-version 1.1:
+version 1.0:
 - modify launchers to auto-update based on pypi version of invaderclone package (users should never have to download a new exe)
 - release on itch.io
 
-version 1.2:
+version 1.1:
 - modify leaderboard to include name entry
 - Completely refactor and relint the codebase:
     - __init__.py
