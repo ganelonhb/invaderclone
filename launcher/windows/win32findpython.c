@@ -20,14 +20,15 @@ char* win32FindPython(stringlist_t list)
 
         int lastCharDelim = list[i][strLen - 1] == '\\' ? 12 : 11;
         int numberBytes = (strLen + lastCharDelim) * sizeof(char);
-        char* str = (char*)calloc(numberBytes);
+        char* str = (char*)malloc(numberBytes);
+        memset(str, 0, sizeof(char));
 
         for (int j = 0; j < strLen; ++j)
         {
             str[j] = list[i][j];
         }
 
-        char python[12] = "\\Python.exe\0";
+        char python[12] = "\\python.exe\0";
 
         int p = list[i][strLen - 1] == '\\' ? 0 : 1;
         for (int k = strLen; k < strLen + lastCharDelim - 1; ++k)

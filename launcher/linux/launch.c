@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "manylinuxnotify.h"
+#include "utils.h"
 
 #define COMMANDBUFFER 1024
 
@@ -97,7 +98,7 @@ int main(int argc, char** argv)
 
 	// Try to update invaderclone.
 
-	char updcmd[COMMANDBUFFER] = "./gamedata/env/bin/python3 -m pip install --upgrade pip invaderclone";
+	char updcmd[COMMANDBUFFER] = "./gamedata/env/bin/python3 -m pip install --quiet --upgrade pip invaderclone";
 
 	FILE* updoot = popen(updcmd, "w");
 
@@ -110,94 +111,11 @@ int main(int argc, char** argv)
 
 	// Launch the program from the virtual env that was created.
 
-	const char commandStart[] = "./gamedata/env/bin/python -m invaders";
-	int cliCmdLen = strlen(commandStart) + 1; // This should cover every single token, injected parenthesis when needed, and the basic str above.
-	int seek = cliCmdLen - 1;
-
-	bool encounteredSwitch = false;
-	bool nextHasSwitchOrIsEnd = false;
-	bool lastHasSwitch = true;
-	bool switchMode = false;
-	for (int i = 1; i < argc; ++i)
-	{
-		encounteredSwitch = argv[i][0] == '-';
-		lastHasSwitch = argv[i-1][0] == '-';
-		nextHasSwitchOrIsEnd = i == argc - 1 || argv[i+1][0] == '-';
-
-		if (encounteredSwitch && !nextHasSwitchOrIsEnd)
-		{
-			switchMode = true;
-		}
-
-		if (switchMode && lastHasSwitch)
-		{
-			++cliCmdLen;
-		}
-
-		if (switchMode && nextHasSwitchOrIsEnd)
-		{
-			++cliCmdLen;
-			switchMode = false;
-		}
-
-
-		cliCmdLen += strlen(argv[i]) + 1;
-	}
-
-	char command[cliCmdLen];
-	memset(command, '\0', cliCmdLen);
-
-	for (int i = 0; i < strlen(commandStart); ++i)
-	{
-		command[i] = commandStart[i];
-	}
-
-
-	encounteredSwitch = false;
-	nextHasSwitchOrIsEnd = false;
-	lastHasSwitch = true;
-	switchMode = false;
-	for (int i = 1; i < argc; ++i)
-	{
-		command[seek] = ' ';
-		++seek;
-
-		encounteredSwitch = argv[i][0] == '-';
-		lastHasSwitch = argv[i-1][0] == '-';
-		nextHasSwitchOrIsEnd = i == argc - 1 || argv[i+1][0] == '-';
-
-		if (encounteredSwitch && !nextHasSwitchOrIsEnd)
-		{
-			switchMode = true;
-		}
-
-		if (switchMode && lastHasSwitch)
-		{
-			command[seek] = '\"';
-			++seek;
-		}
-
-		for (int j = 0; j < strlen(argv[i]); ++j)
-		{
-			command[seek] = argv[i][j];
-			++seek;
-		}
-
-		if (switchMode && nextHasSwitchOrIsEnd)
-		{
-			command[seek] = '\"';
-			++seek;
-			switchMode = false;
-		}
-
-	}
-
-	command[seek] = '\0';
-	printf("%s\n", &command);
-
+	char* command = CreateCommandString("./gamedata/env/bin/python3 -m invaders", argc, argv);
 
 	FILE* proccess = popen(command, "w");
 
+	free(command);
 
 	// Check if the process could be created, and notify the user if not.
 	if (!proccess)

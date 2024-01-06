@@ -13,10 +13,10 @@ from . import player
 from .explosion import Explosion
 from .enemy import EnemyShip
 from . import bullets
-from . import leaderboard
 from . import burst_shot_powerup
 from .obstacle import Obstacle
-from .constants import save_path, file_name, PLAYER_SIZE_MODIFIER, ENEMY_SIZE_MODIFIER
+from .constants import PLAYER_SIZE_MODIFIER, ENEMY_SIZE_MODIFIER
+
 
 class Level0(Scene):
     """Scene which implements a level in the game"""
@@ -32,11 +32,14 @@ class Level0(Scene):
         self._enemy_list = None
         self._obstacle_list = None
         self._player_speed = None
+        self._player_bullet_speed = None
         self._enemy_speed = None
         self._obstacle_speed = None
         self._powerup_speed = None
         self._powup_chance = None
         self._obstacle_chance = None
+        self._oneup_score = None
+        self._powerup_score = None
         self._stars = None
         self._difficulty_mod = None
         self._score = None
@@ -163,6 +166,7 @@ class Level0(Scene):
 
         # Speeds
         self._player_speed = gs["player_speed"]
+        self._player_bullet_speed = gs["player_bullet_speed"]
         self._enemy_speed = gs["enemy_speed"]
         self._obstacle_speed = gs["obstacle_speed"]
         self._powerup_speed = gs["powerup_speed"]
@@ -181,6 +185,11 @@ class Level0(Scene):
         self._difficulty_mod = gs["current_difficulty_modifier"]
         self._num_rows = gs["rows"]
         self._num_cols = gs["columns"]
+
+        # Scores
+        self._oneup_score = gs["oneup_score"]
+        self._powerup_score = gs["powerup_score"]
+        self._death_penalty = -gs["death_penalty"]
 
         # Scores/Lives
         self._score = gs["current_score_p1"]
@@ -257,7 +266,7 @@ class Level0(Scene):
             Obstacle(
                 position,
                 obstacle_target,
-                min(self._obstacle_speed * self._difficulty_mod, 50),
+                min(self._obstacle_speed * self._difficulty_mod, 35),
                 self._obstacle_list[obstacle_choice]
                 )
             )
@@ -294,11 +303,10 @@ class Level0(Scene):
         self._score = tempscore if tempscore >= 0 else 0
         gs["current_score_p1"] = self._score
 
+        life_oldscore = oldscore % self._oneup_score
+        life_newscore = tempscore % self._oneup_score
 
-        life_oldscore = oldscore % 20000
-        life_newscore = tempscore % 20000
-
-        nearest_multiple = 20000 * round(tempscore / 20000)
+        nearest_multiple = self._oneup_score * round(tempscore / self._oneup_score)
 
         if (value > 0
         and self._score > 0
@@ -307,8 +315,9 @@ class Level0(Scene):
             self.update_lives(1)
             gs["oneups"].append(nearest_multiple)
 
-        powup_oldscore = oldscore % 2000
-        powup_newscore = tempscore % 2000
+        powup_oldscore = oldscore % self._powerup_score
+        powup_newscore = tempscore % self._powerup_score
+
         if (
             value > 0
             and self._score > 0
@@ -364,7 +373,7 @@ class Level0(Scene):
         self._explosion_sound.play()
         self._player.position = pygame.math.Vector2(self._width // 2, self._height - (10 + self._screen.get_height() // PLAYER_SIZE_MODIFIER))
         self._player.invincible_clock()
-        self.update_score(int(-100 * self._difficulty_mod))
+        self.update_score(int(self._death_penalty * self._difficulty_mod))
         self.update_lives(-1)
 
     def kill_player2(self):
@@ -394,7 +403,6 @@ class Level0(Scene):
 
         spawn_obstacle_uniform = uniform(0, 101)
         if spawn_obstacle_uniform < min(13.33, self._obstacle_chance + (self._difficulty_mod - 1.)):
-            #print(f"{spawn_obstacle_uniform}/{ min(10, self._obstacle_chance + (self._difficulty_mod - 1.))}")
             self.spawn_obstacle()
 
         self._player.update()
@@ -558,13 +566,13 @@ class Level0(Scene):
                             )
                             bullet_target = newpos - pygame.math.Vector2(0, height)
                             self._bullets.append(
-                                bullets.PlayerBulletOneThird(newpos, bullet_target, 20, bullet_asset)
+                                bullets.PlayerBulletOneThird(newpos, bullet_target, self._player_bullet_speed - 0, bullet_asset)
                             )
                             self._bullets.append(
-                                bullets.PlayerBulletOneThird(newpos, bullet_target, 18, bullet_asset)
+                                bullets.PlayerBulletOneThird(newpos, bullet_target, self._player_bullet_speed - 2, bullet_asset)
                             )
                             self._bullets.append(
-                                bullets.PlayerBulletOneThird(newpos, bullet_target, 16, bullet_asset)
+                                bullets.PlayerBulletOneThird(newpos, bullet_target, self._player_bullet_speed - 4, bullet_asset)
                             )
 
                         case _:
@@ -576,7 +584,7 @@ class Level0(Scene):
                                 player.position.x + + (player.width // 2) - (bullet_asset.get_width() // 2), player.position.y
                             )
                             bullet_target = newpos - pygame.math.Vector2(0, height)
-                            velocity = 20
+                            velocity = self._player_bullet_speed
                             self._bullets.append(
                                 bullets.PlayerBullet(newpos, bullet_target, velocity, bullet_asset)
                             )

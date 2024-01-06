@@ -5,8 +5,8 @@ X improve speed by preloading sprites? Use only one sprite object.
 X Finish implementing various text color changes, etc
 X argument groups for argparse
 X Themes can have arguments
-- CLI args get string quotes to be passed to python version... make my brain hurty hurty
-- Finish Windows version (maybe recycle CLI code above?
+X CLI args get string quotes to be passed to python version... make my brain hurty hurty
+- Finish Windows version (maybe recycle CLI code above?)
 X Every scene object takes a game_settings arg instead of passing everything around
 X Redo scene graph implementation
 X Replace Explosion with normal sprite

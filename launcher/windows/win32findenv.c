@@ -10,7 +10,8 @@ bool win32FindEnv(const char* execDir)
     int startIdx = (execDir[execDirStrLen - 1] == '\\') ? 1 : 0;
     int searchStrLen = execDirStrLen + 11 - startIdx;
     int nBytes = (searchStrLen) * sizeof(char);
-    char* searchStr = (char*)calloc(nBytes);
+    char* searchStr = (char*)malloc(nBytes);
+    memset(searchStr, 0, sizeof(char));
 
     for (int i = 0; i < execDirStrLen; ++i)
     {

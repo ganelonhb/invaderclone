@@ -1,6 +1,6 @@
 # Invader Clone
 
-![Kitty Invader](https://raw.githubusercontent.com/ganelonhb/invaderclone/master/data/invaderclone/data/themes/default/images/enemy2.png) [![PyPI](https://img.shields.io/badge/PyPI-v0.9.0-blue.svg)](https://pypi.org/project/invaderclone/) [![GitHub](https://img.shields.io/badge/GitHub-v0.9.0-purple.svg)](https://github.com/ganelonhb/invaderclone) ![Kitty Invader](https://raw.githubusercontent.com/ganelonhb/invaderclone/master/data/invaderclone/data/themes/default/images/enemy2.png)
+[![PyPI](https://img.shields.io/badge/PyPI-v0.9.0-blue.svg)](https://pypi.org/project/invaderclone/) [![GitHub](https://img.shields.io/badge/GitHub-v0.9.0-purple.svg)](https://github.com/ganelonhb/invaderclone)
 
 ## Project Description
 

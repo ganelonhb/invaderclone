@@ -18,7 +18,7 @@ class Bullet:
         if bulletimg is not None:
             self._img = bulletimg
             self._width = self._img.get_width()
-            self._height= self._img.get_height()
+            self._height = self._img.get_height()
         else:
             self._img = None
             self._width = 4
@@ -27,8 +27,9 @@ class Bullet:
     def should_die(self):
         """determine if a bullet should die"""
 
-        squared_distance =  (self._position
-                            - self._target_position).length_squared()
+        squared_distance = (
+            self._position - self._target_position
+            ).length_squared()
         return math.isclose(squared_distance, 0.0, rel_tol=1e-01)
 
     def draw(self, screen):
@@ -60,6 +61,7 @@ class PlayerBullet(Bullet):
 
     def __init__self(self, position, target_position, speed, bulletimg=None):
         super.__init__(self, position, target_position, speed, bulletimg)
+
 
 class PlayerBulletOneThird(Bullet):
     """implements a player bullet that costs 1/3rd the price when lost"""

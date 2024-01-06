@@ -13,10 +13,10 @@ linux:
 	$(GCC) $(LFL) -o $(NAME)
 
 windows:
-	 $(WCC) $(WFL) -o $(NAME).exe
+	 $(WCC) $(WFL) -o $(NAME).exe -mwindows
 
 debug_make_to_vm:
-	$(WCC) $(WFL) -o /home/donquixote/VMs/windows/$(NAME).exe
+	$(WCC) $(WFL) -o /home/donquixote/VMs/windows/$(NAME).exe -mwindows
 
 clean:
 	rm -rf ./data/env

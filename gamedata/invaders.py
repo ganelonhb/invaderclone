@@ -11,6 +11,7 @@ from copy import deepcopy
 from invaderclone.game import InvaderClone
 from invaderclone.rgbcolors import color_dictionary as cd
 
+
 def main():
     raw_args = deepcopy(sys.argv)
 
@@ -18,8 +19,10 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog="Invader Clone",
-        description="A configurable clone of Space Invaders written as part of a school project in Pygame.",
-        epilog="For comments, questions, concerns, inquiries, or any other synonyms of those words, contact me at worcesterz@outlook.com."
+        description="A configurable clone of Space Invaders"
+                    "written as part of a school project in Pygame.",
+        epilog="For comments, questions, concerns, inquiries, or any other"
+               "synonyms of those words, contact me at worcesterz@outlook.com."
         )
 
     parser.add_argument("-l", "--list_colors", action='store_true', help='show a the list of colors that arguments accepting COLOR NAME will take and exit')
@@ -34,17 +37,24 @@ def main():
     game_settings.add_argument("--disable_gamepads", action="store_true", help="disable the use of gamepads (if for some reason it doesn't work)")
     game_settings.add_argument("--disable_multiplayer", action="store_true", help="disable multiplayer functionality")
 
+    sound_settings = parser.add_argument_group(title='sound settings', description='music and sound effect settings')
+
     difficulty_settings = parser.add_argument_group(title="difficulty settings", description="modify various difficulty settings")
     difficulty_settings.add_argument("-d", "--difficulty_step", default=25.0, type=float, help="increase the difficulty by this percent every round (default 25.0)")
     difficulty_settings.add_argument("-r", "--rows", default=4, type=int, help="how many rows of enemies there are (default 5)")
     difficulty_settings.add_argument("-c", "--columns", default=12, type=int, help="how many columns of enemies there are (default 9)")
     difficulty_settings.add_argument("--starting_lives", default=3, type=int, help="the number of lives to start with for each player")
     difficulty_settings.add_argument("--player_speed", type=float, default=15., help="change the speed of the player")
+    difficulty_settings.add_argument("--player_bullet_speed", type=float, default=20., help="change the speed of the player's bullet")
     difficulty_settings.add_argument("--enemy_speed", type=float, default=5., help="change the base speed of enemies")
     difficulty_settings.add_argument("--obstacle_speed", type=float, default=7., help="change the base speed of obstacles")
     difficulty_settings.add_argument("--powerup_speed", type=float, default=5., help="change the speed of powerups")
-    difficulty_settings.add_argument("--powerup_chance", type=int, default=13, help = "percent chance a powerup spawns at the powerup score")
-    difficulty_settings.add_argument("--obstacle_chance", type=float, default=0.04, help = "percent chance an obstacle spawns any given frame")
+    difficulty_settings.add_argument("--powerup_chance", type=int, default=13, help="percent chance a powerup spawns at the powerup score")
+    difficulty_settings.add_argument("--obstacle_chance", type=float, default=0.04, help="percent chance an obstacle spawns any given frame")
+    difficulty_settings.add_argument("--oneup_score", type=int, default=20000, help="every N points, the player is awarded a one up")
+    difficulty_settings.add_argument("--powerup_score", type=int, default=2000, help="every N points, the player has a chance to be awarded a powerup (see --powerup_chance)")
+    difficulty_settings.add_argument("--death_penalty", type=int, default=100, help="how many points are taken from the player for dying.")
+
 
 
     theme_settings = parser.add_argument_group(title="theme settings", description="modify generic theme settings")
@@ -93,7 +103,6 @@ def main():
     _data_dir = os.path.join(_main_dir, "invaders", "data")
 
     UNIX_SYSTEMS = ["aix", "darwin", "freebsd", "linux", "openbsd"]
-    WINDOWS_SYSTEMS = ["win32", "win64", "cygwin", "msys", "nt"]
 
     _docsdir = ".config" if sys.platform in UNIX_SYSTEMS else "Documents"
 
@@ -102,7 +111,21 @@ def main():
     if not os.path.exists(os.path.join(_settingsdir, "themes")):
         os.makedirs(os.path.join(_settingsdir, "themes"))
 
-    theme_dir = os.path.join(_data_dir, "themes", args.theme) if not os.path.isdir(os.path.join(_settingsdir, "themes", args.theme)) else os.path.join(_settingsdir, "themes", args.theme)
+    theme_dir = os.path.join(
+        _data_dir,
+        "themes",
+        args.theme
+        ) if not os.path.isdir(
+            os.path.join(
+                _settingsdir,
+                "themes",
+                args.theme
+                )
+            ) else os.path.join(
+                _settingsdir,
+                "themes",
+                args.theme
+                )
 
     if os.path.isfile(os.path.join(theme_dir, "theme.args")):
         var_args = vars(args)
@@ -115,25 +138,36 @@ def main():
                 line_tuple = line.split('=')
 
                 if len(line_tuple) != 2:
-                    print(f"[Line {num + 1}] Error parsing theme.args. Invalid format: {line.rstrip()} (too many or too few assignment operators).")
+                    print(f"[Line {num + 1}] Error parsing theme.args. "
+                          f"Invalid format: {line.rstrip()} "
+                          f"(too many or too few assignment operators).")
                     sys.exit(-1)
 
                 if line_tuple[0].strip() not in var_args_keys:
-                    print(f"[Line {num + 1}] Error parsing theme.args. Invalid argument: {line_tuple[0].strip()}.")
+                    print(f"[Line {num + 1}] Error parsing theme.args. "
+                          f"Invalid argument: {line_tuple[0].strip()}.")
                     sys.exit(-1)
 
                 if f'--{line_tuple[0].strip()}' not in raw_args:
                     try:
                         typecast = type(var_args[line_tuple[0].strip()])
+                        lt_strplo = line_tuple[1].strip().lower()
 
-                        if typecast is bool and line_tuple[1].strip().lower() in ['0', 'false', None]:
+                        if (
+                            typecast is bool
+                            and lt_strplo in ['0', 'false', None]
+                        ):
                             val = False
                         else:
                             val = typecast(line_tuple[1].strip())
 
                         var_args[line_tuple[0].strip()] = val
                     except ValueError:
-                        print(f"[Line {num + 1}] Error parsing theme.args. Could not cast {line_tuple[1].strip()} to type {type(var_args[line_tuple[0].strip()])}.")
+                        print(
+                            (f"[Line {num + 1}] Error parsing theme.args."
+                             f"Could not cast {line_tuple[1].strip()} to type "
+                             f"{type(var_args[line_tuple[0].strip()])}.")
+                            )
                         sys.exit(-1)
 
     game_settings = deepcopy(dict(vars(args)))
@@ -144,12 +178,13 @@ def main():
     game_settings["current_difficulty_modifier"] = 1.0
     game_settings["current_score_p1"] = 0
     game_settings["current_score_p2"] = 0
-    game_settings["current_lives_p1"] = deepcopy(game_settings["starting_lives"])
-    game_settings["current_lives_p2"] = deepcopy(game_settings["starting_lives"])
+    game_settings["current_lives_p1"] = game_settings["starting_lives"]
+    game_settings["current_lives_p2"] = game_settings["starting_lives"]
     game_settings["oneups"] = []
 
     sys.exit(InvaderClone(game_settings).run()
         )
+
 
 if __name__ == "__main__":
     main()

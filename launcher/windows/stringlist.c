@@ -40,7 +40,7 @@ stringlist_t splitString(const char* str, char delim)
 
     for (int j = 0; j < count; ++j)
     {
-        stringlist[j] = (char*)calloc(stringlistCounts[j] * sizeof(char*));
+        stringlist[j] = (char*)malloc(stringlistCounts[j] * sizeof(char*));
     }
 
     // Now, we need to copy each string into the string list at each index.
