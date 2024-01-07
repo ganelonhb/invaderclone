@@ -10,6 +10,7 @@ from copy import deepcopy
 # pylint: disable=import-error
 from invaderclone.game import InvaderClone
 from invaderclone.rgbcolors import color_dictionary as cd
+from invaderclone.theme import Theme, get_theme_dir
 
 
 def main():
@@ -19,9 +20,9 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog="Invader Clone",
-        description="A configurable clone of Space Invaders"
+        description="A configurable clone of Space Invaders "
                     "written as part of a school project in Pygame.",
-        epilog="For comments, questions, concerns, inquiries, or any other"
+        epilog="For comments, questions, concerns, inquiries, or any other "
                "synonyms of those words, contact me at worcesterz@outlook.com."
         )
 
@@ -38,6 +39,10 @@ def main():
     game_settings.add_argument("--disable_multiplayer", action="store_true", help="disable multiplayer functionality")
 
     sound_settings = parser.add_argument_group(title='sound settings', description='music and sound effect settings')
+    sound_settings = parser.add_argument("--title_music", default="title_music", help='what asset to use for title music')
+    sound_settings = parser.add_argument("--game_music", default="game_music", help="what asset to use for game music")
+    sound_settings = parser.add_argument("--gameover_music", default="gameover_music", help="what asset to use for gameover music")
+    sound_settings = parser.add_argument("--leaderboard_music", default="leaderboard_music", help="what asset to use for leaderboard music")
 
     difficulty_settings = parser.add_argument_group(title="difficulty settings", description="modify various difficulty settings")
     difficulty_settings.add_argument("-d", "--difficulty_step", default=25.0, type=float, help="increase the difficulty by this percent every round (default 25.0)")
@@ -54,8 +59,6 @@ def main():
     difficulty_settings.add_argument("--oneup_score", type=int, default=20000, help="every N points, the player is awarded a one up")
     difficulty_settings.add_argument("--powerup_score", type=int, default=2000, help="every N points, the player has a chance to be awarded a powerup (see --powerup_chance)")
     difficulty_settings.add_argument("--death_penalty", type=int, default=100, help="how many points are taken from the player for dying.")
-
-
 
     theme_settings = parser.add_argument_group(title="theme settings", description="modify generic theme settings")
     theme_settings.add_argument("-t", "--theme", default="default", help="change the theme of the game.")
@@ -92,7 +95,36 @@ def main():
     gameover_text_settings = parser.add_argument_group(title="gameover text settings", description="game over screen text")
     gameover_text_settings.add_argument("--game_over", default="GAME OVER!", help="game over text")
     gameover_text_settings.add_argument("--game_over_text_color", default="ghostwhite", choices=colors, metavar="COLOR NAME", help="game over text color")
+
+    advanced_settings = parser.add_argument_group(title="advanced settings", description="add custom entries to the settings dictionary, and more")
+    advanced_settings.add_argument("--set_custom_keys", nargs="+", default=[], help="add dictionary entries to the game settings entries as k:v pairs. seperate with spaces")
+    advanced_settings.add_argument("--add_custom_assets", nargs="+", default=[], help="add custom assets to the game as k:v pairs. seperate with spaces")
+
     args = parser.parse_args()
+
+    # check if correct sound assets are being applied to sound settings:
+
+    temp_theme = Theme(args.theme)
+    title_song = temp_theme.get(args.title_music, None)
+    game_song = temp_theme.get(args.game_music, None)
+    gameover_song = temp_theme.get(args.gameover_music, None)
+    leaderboard_song = temp_theme.get(args.leaderboard_music, None)
+
+    title_not_good = not (title_song is not None and title_song.endswith('.ogg'))
+    game_not_good = not (game_song is not None and game_song.endswith('.ogg'))
+    gameover_not_good = not (gameover_song is not None and gameover_song.endswith('.ogg'))
+    leaderboard_not_good = not (leaderboard_song is not None and leaderboard_song.endswith('.ogg'))
+
+    if (
+        title_not_good
+        or game_not_good
+        or gameover_not_good
+        or leaderboard_not_good
+        ):
+        print("Error: One or more of the supplied music assets cannot be used.")
+        sys.exit(-1)
+
+    # ------------------------------------------------------------------
 
     if args.list_colors:
         for color in colors:
@@ -127,15 +159,26 @@ def main():
                 args.theme
                 )
 
-    if os.path.isfile(os.path.join(theme_dir, "theme.args")):
+    theme_args = os.path.join(theme_dir, "theme.args")
+    default_args = os.path.join(os.getcwd(), "default.args")
+
+    if os.path.isfile(theme_args) or (args.theme == "default" and os.path.isfile(default_args)):
         var_args = vars(args)
         var_args_keys = var_args.keys()
 
-        with open(os.path.join(theme_dir, "theme.args"), "r") as theme_args:
+        args_file = theme_args if not args.theme =="default" else default_args
+
+        with open(args_file, "r") as theme_args:
             lines = theme_args.readlines()
 
             for num, line in enumerate(lines):
-                line_tuple = line.split('=')
+                line_tuple = line.split('=', 1)
+
+                if line_tuple[0].strip() in ["set_custom_keys", "add_custom_assets"]:
+                    line_tuple[1] = line_tuple[1].strip().split(' ')
+                    for line in line_tuple[1]:
+                        line = line.strip()
+
 
                 if len(line_tuple) != 2:
                     print(f"[Line {num + 1}] Error parsing theme.args. "
@@ -151,21 +194,32 @@ def main():
                 if f'--{line_tuple[0].strip()}' not in raw_args:
                     try:
                         typecast = type(var_args[line_tuple[0].strip()])
-                        lt_strplo = line_tuple[1].strip().lower()
+                        lt_strplo = None if typecast is not bool else line_tuple[1].strip().lower()
+
+                        skip = typecast is list
 
                         if (
                             typecast is bool
                             and lt_strplo in ['0', 'false', None]
                         ):
                             val = False
+                        elif (
+                            typecast is list
+                        ):
+                            for kv in line_tuple[1]:
+                                k, v = kv.split(':', 1)
+                                var_args[k] = v.strip()
+
+                            val = typecast(line_tuple[1])
                         else:
                             val = typecast(line_tuple[1].strip())
 
-                        var_args[line_tuple[0].strip()] = val
+                        if not skip:
+                            var_args[line_tuple[0].strip()] = val
                     except ValueError:
                         print(
                             (f"[Line {num + 1}] Error parsing theme.args."
-                             f"Could not cast {line_tuple[1].strip()} to type "
+                             f"Could not cast {line_tuple[1]} to type "
                              f"{type(var_args[line_tuple[0].strip()])}.")
                             )
                         sys.exit(-1)
@@ -182,8 +236,19 @@ def main():
     game_settings["current_lives_p2"] = game_settings["starting_lives"]
     game_settings["oneups"] = []
 
-    sys.exit(InvaderClone(game_settings).run()
-        )
+    for setting in args.set_custom_keys:
+        if setting not in game_settings.keys():
+            if ':' not in setting:
+                game_settings["setting"] = None
+            else:
+                k, v = setting.split(':', 1)
+                v = v.replace('\{theme_dir\}', get_theme_dir(args.theme))
+
+                game_settings[k] = v
+        else:
+            print(f"Ignoring key with name: {setting}, already exists!")
+
+    sys.exit(InvaderClone(game_settings).run())
 
 
 if __name__ == "__main__":

@@ -24,9 +24,10 @@ class Level0(Scene):
     def __init__(self,
                 screen,
                 game_settings,
+                soundtrack=None,
                 ):
         """Initialize the carnage."""
-        super().__init__(screen, game_settings)
+        super().__init__(screen, game_settings, game_settings['game_music'])
 
         self._sprite_dict = None
         self._enemy_list = None

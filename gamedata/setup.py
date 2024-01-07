@@ -8,7 +8,8 @@ with open("README.md", "r") as f:
 
 setup(
     name="invaderclone",
-    version="0.9.0",
+    version="0.9.3",
+    python_requires=">=3.5.0",
     description="A module Space Invaders clone in Python Pygame",
     long_description=DESCRIPTION,
     long_description_content_type='text/markdown',

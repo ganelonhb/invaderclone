@@ -16,7 +16,7 @@ from .constants import save_path, file_name
 class Scene:
     """Base class for making PyGame Scenes."""
 
-    def __init__(self, screen, game_settings):
+    def __init__(self, screen, game_settings, soundtrack):
         """Scene initializer"""
 
         self._game_settings=game_settings
@@ -27,7 +27,7 @@ class Scene:
         #self._background.fill(self._game_settings["default_bg"])
         self._frame_rate = self._game_settings["frame_rate"]
         self._is_valid = True
-        self._soundtrack = self._game_settings["default_soundtrack"]
+        self._soundtrack = self._theme.get(soundtrack, theme.FALLBACK_SND)
         self._quit = False
         self._timestart = time.time()
 
@@ -91,7 +91,6 @@ class Scene:
     def update_settings(self, new_settings = None):
         gs = self._game_settings if new_settings is None else new_settings
         self._frame_rate = gs["frame_rate"]
-        self._soundtrack = gs["default_soundtrack"]
 
     def start_scene(self):
         """Start the scene."""
@@ -110,7 +109,7 @@ class Scene:
         if self._soundtrack and pygame.mixer.music.get_busy():
             # Fade music out so there isn't an audible pop
             pygame.mixer.music.fadeout(500)
-            pygame.milevexer.music.stop()
+            pygame.mixer.music.stop()
 
         if self._quit:
             return ["QUIT_GAME"]

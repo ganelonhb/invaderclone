@@ -18,17 +18,10 @@ class LeaderboardScene(PressAnyKeyToExitScene):
         self,
         screen,
         game_settings,
-        # score,
-        # lives,
-        # oneups = None,
-        # background_color=rgbcolors.black,
-        # soundtrack=None,
-        # skin="default",
-        # victorytext = "VICTORY!",
-        # continuetext = "Continue (Y/N)?"
+        soundtrack=None,
     ):
         """initialize a leaderboard"""
-        super().__init__(screen, game_settings)
+        super().__init__(screen, game_settings, game_settings['leaderboard_music'])
 
         self._score = None
         self._lives_p1 = None

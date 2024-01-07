@@ -15,10 +15,11 @@ class GameOverScene(PressAnyKeyToExitScene):
         self,
         screen,
         game_settings,
+        soundtrack=None,
     ):
         """initialize a game over scene"""
 
-        super().__init__(screen, game_settings)
+        super().__init__(screen, game_settings, game_settings['gameover_music'])
 
         self._y = False
 

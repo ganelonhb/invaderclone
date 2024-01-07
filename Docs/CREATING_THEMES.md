@@ -30,30 +30,30 @@ Once you've found the themes folder, create a new folder in that directory. Name
 
 Your theme folder should have this structure:
 
-\<your theme name\>
-├── bgm
-│   ├─ game_over.ogg
-│   ├─ game.ogg
-│   ├─ leaderboard.ogg
-│   └─ title.ogg
-├── bgs
-│   ├─ explode.ogg
-│   └─ explode+kitty.ogg
-├── fonts
-│   ├─ other.ttf
-│   └─ title.ttf
-└── images
-    ├─ bg.png (optional)
-    ├─ badbullet.png
-    ├─ burst.png
-    ├─ enemy*.png
-    ├─ explosion.png
-    ├─ gameover.png
-    ├─ goodbullet.png
-    ├─ hero.png
-    ├─ obstacle*.png
-    ├─ second_hero.png
-    └─ title.png
+\<your theme name\><br />
+├── bgm<br />
+│   ├─ game_over.ogg<br />
+│   ├─ game.ogg<br />
+│   ├─ leaderboard.ogg<br />
+│   └─ title.ogg<br />
+├── bgs<br />
+│   ├─ explode.ogg<br />
+│   └─ explode+kitty.ogg<br />
+├── fonts<br />
+│   ├─ other.ttf<br />
+│   └─ title.ttf<br />
+└── images<br />
+    ├─ bg.png (optional)<br />
+    ├─ badbullet.png<br />
+    ├─ burst.png<br />
+    ├─ enemy*.png<br />
+    ├─ explosion.png<br />
+    ├─ gameover.png<br />
+    ├─ goodbullet.png<br />
+    ├─ hero.png<br />
+    ├─ obstacle*.png<br />
+    ├─ second_hero.png<br />
+    └─ title.png<br />
 
 Right now, all you have to do is create the folders "bgm", "bgs", "fonts", and "images."
 
@@ -120,4 +120,31 @@ If you want your game to use a background image on a particular screen, you will
 
 ## Step 6 - Command Line Options
 
-Some settings cannot be swapped out by simply adding a file to a directory. Or, not as far as you're concerned, yet! To change different, you can pass options to the executable from the command line. What? If you don't know what a command line is and don't care, just skip to Step 7! No, really, it's fine! You will be asked to come back here when it matters to you. If you are interested in the command line, however, keep reading.
+Some settings cannot be swapped out by simply adding a file to a directory. Or, not as far as you're concerned, yet! To change in-game settings, you can pass options to the executable from the command line. What? If you don't know what a command line is and don't care, just skip to Step 7! No, really, it's fine! If you know how to use the command line, however, please read.
+
+This game uses the command line to handle in-game settings. Nearly every setting is configureable. You can really fine-tune your game by changing settings.
+
+Included in the Docs dir (alongside this very file) is a file called help.txt. It includes the output of the game's ```--help``` command. You can read about every setting there.
+
+This game is intended to be configured to your preference. Use the various command line options to change settings on the fly if you are running your game from the command line.
+
+## Step 7 - The default.args And theme.args Files
+
+You may grow tired of using the command line to set your options every time. That's okay, I won't get sad that all of that work I did went to waste!
+
+If you want to make your settings more permanent, you can make a file in the same directory as the executable file titled ```default.args```. You can set command line options in this file, and it will be read at the start of of execution. This way, you can save settings you like!
+
+The command line options will now override options that you set in the ```default.args``` file (if present), rather than overriding the hard-coded default settings.
+
+The structure of the ```default.args``` file is as follows:
+
+```
+cli_option1=value2
+cli_option2=value2
+...
+cli_optionN=valueN
+```
+
+You must seperate each option by using a new line. You can have as many assignment operators ('=' sign) as you want in one line, as only the first '=' sign is counted as an assignment.
+
+If you're making a theme, you can do the same thing using a file called ```theme.args```. This can be really helpful if you want to change font colors, use a scrolling background, or do other things! If you are not using the default theme, ```default.args``` is not used.

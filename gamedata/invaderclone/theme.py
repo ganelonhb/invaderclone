@@ -1,6 +1,8 @@
 """Defines the means of creating an asset dictionary"""
 
-from os import path, makedirs
+import errno
+
+from os import path, makedirs, strerror
 from sys import platform
 from glob import glob
 
@@ -14,6 +16,17 @@ FALLBACK_SND = path.join(DATA_DIR, "missing.wav")
 
 # Curses font retrieved from https://www.1001fonts.com/curses-font.html
 FALLBACK_FNT = path.join(DATA_DIR, "curs.ttf")
+
+def get_theme_dir(name):
+    assets_path = path.join(DATA_DIR, "themes", name)
+    config_path = path.join(SETTINGS_DIR, "themes", name)
+
+    if path.exists(config_path):
+        return config_path
+    elif path.exists(assets_path):
+        return assets_path
+
+    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), f'niether {self._config_path} nor {self._assets_path}')
 
 class Theme:
 
@@ -50,18 +63,21 @@ class Theme:
         }
 
         self._enemies = []
-
-        if path.exists(self._config_path):
-            self._enemies = sorted(glob(path.join(self._config_path, "images", "enemy*.png")))
-        elif path.exists(self._assets_path):
-            self._enemies = sorted(glob(path.join(self._assets_path, "images", "enemy*.png")))
-
         self._obstacles = []
 
         if path.exists(self._config_path):
+            self._enemies = sorted(glob(path.join(self._config_path, "images", "enemy*.png")))
             self._obstacles = sorted(glob(path.join(self._config_path, "images", "obstacle*.png")))
+            self._dir = self._config_path
         elif path.exists(self._assets_path):
+            self._enemies = sorted(glob(path.join(self._assets_path, "images", "enemy*.png")))
             self._obstacles = sorted(glob(path.join(self._assets_path, "images", "obstacle*.png")))
+            self._dir = self._assets_path
+        else:
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), f'{self._config_path} or {self._assets_path}')
+
+    def get_dir(self):
+        return self._dir
 
     def get_obstacle(self, num):
         if len(self._obstacles) < num:

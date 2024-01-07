@@ -14,10 +14,11 @@ class PolygonTitleScene(PressAnyKeyToExitScene):
         self,
         screen,
         game_settings,
+        soundtrack=None,
     ):
         """Initialize the scene."""
 
-        super().__init__(screen, game_settings)
+        super().__init__(screen, game_settings, game_settings['title_music'])
 
         self._title = None
         self._subtitle = None

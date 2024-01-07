@@ -6,6 +6,7 @@ gamedata/env/
 gamedata/build/
 gamedata/invaderclone.egg-info/
 gamedata/dist/
+gamedata/dist_archive/
 gamedata/README.md
 gamedata/__pycache__/
 *.swp

@@ -1,0 +1,185 @@
+usage: Invader Clone [-h] [-l] [--width WIDTH] [--height HEIGHT] [-n NAME]
+                     [--frame_rate FRAME_RATE] [--disable_gamepads]
+                     [--disable_multiplayer] [--title_music TITLE_MUSIC]
+                     [--game_music GAME_MUSIC]
+                     [--gameover_music GAMEOVER_MUSIC]
+                     [--leaderboard_music LEADERBOARD_MUSIC]
+                     [-d DIFFICULTY_STEP] [-r ROWS] [-c COLUMNS]
+                     [--starting_lives STARTING_LIVES]
+                     [--player_speed PLAYER_SPEED]
+                     [--player_bullet_speed PLAYER_BULLET_SPEED]
+                     [--enemy_speed ENEMY_SPEED]
+                     [--obstacle_speed OBSTACLE_SPEED]
+                     [--powerup_speed POWERUP_SPEED]
+                     [--powerup_chance POWERUP_CHANCE]
+                     [--obstacle_chance OBSTACLE_CHANCE]
+                     [--oneup_score ONEUP_SCORE]
+                     [--powerup_score POWERUP_SCORE]
+                     [--death_penalty DEATH_PENALTY] [-t THEME] [-s] [-b]
+                     [--bg_speed BG_SPEED] [--title_bg_color COLOR NAME]
+                     [--game_bg_color COLOR NAME]
+                     [--leaderboard_bg_color COLOR NAME]
+                     [--gameover_bg_color COLOR NAME]
+                     [--press_any_key PRESS_ANY_KEY]
+                     [--press_any_key_text_color COLOR NAME]
+                     [--continueyn CONTINUEYN]
+                     [--continueyn_text_color COLOR NAME]
+                     [--alt_title ALT_TITLE] [--subtitle1 SUBTITLE1]
+                     [--subtitle2 SUBTITLE2] [--title_text_color COLOR NAME]
+                     [--subtitle1_text_color COLOR NAME]
+                     [--subtitle2_text_color COLOR NAME]
+                     [--ingame_font_color COLOR NAME]
+                     [--victory_text_color COLOR NAME] [--victory VICTORY]
+                     [--game_over GAME_OVER]
+                     [--game_over_text_color COLOR NAME]
+                     [--set_custom_keys SET_CUSTOM_KEYS [SET_CUSTOM_KEYS ...]]
+                     [--add_custom_assets ADD_CUSTOM_ASSETS [ADD_CUSTOM_ASSETS ...]]
+
+A configurable clone of Space Invaders written as part of a school project in
+Pygame.
+
+options:
+  -h, --help            show this help message and exit
+  -l, --list_colors     show a the list of colors that arguments accepting
+                        COLOR NAME will take and exit
+  --title_music TITLE_MUSIC
+                        what asset to use for title music
+  --game_music GAME_MUSIC
+                        what asset to use for game music
+  --gameover_music GAMEOVER_MUSIC
+                        what asset to use for gameover music
+  --leaderboard_music LEADERBOARD_MUSIC
+                        what asset to use for leaderboard music
+
+window settings:
+  modify window settings
+
+  --width WIDTH         window width (default 1000)
+  --height HEIGHT       window height (default 800)
+  -n NAME, --name NAME  change the name of the game
+
+game settings:
+  modify core game functionality
+
+  --frame_rate FRAME_RATE
+                        game frame rate
+  --disable_gamepads    disable the use of gamepads (if for some reason it
+                        doesn't work)
+  --disable_multiplayer
+                        disable multiplayer functionality
+
+sound settings:
+  music and sound effect settings
+
+difficulty settings:
+  modify various difficulty settings
+
+  -d DIFFICULTY_STEP, --difficulty_step DIFFICULTY_STEP
+                        increase the difficulty by this percent every round
+                        (default 25.0)
+  -r ROWS, --rows ROWS  how many rows of enemies there are (default 5)
+  -c COLUMNS, --columns COLUMNS
+                        how many columns of enemies there are (default 9)
+  --starting_lives STARTING_LIVES
+                        the number of lives to start with for each player
+  --player_speed PLAYER_SPEED
+                        change the speed of the player
+  --player_bullet_speed PLAYER_BULLET_SPEED
+                        change the speed of the player's bullet
+  --enemy_speed ENEMY_SPEED
+                        change the base speed of enemies
+  --obstacle_speed OBSTACLE_SPEED
+                        change the base speed of obstacles
+  --powerup_speed POWERUP_SPEED
+                        change the speed of powerups
+  --powerup_chance POWERUP_CHANCE
+                        percent chance a powerup spawns at the powerup score
+  --obstacle_chance OBSTACLE_CHANCE
+                        percent chance an obstacle spawns any given frame
+  --oneup_score ONEUP_SCORE
+                        every N points, the player is awarded a one up
+  --powerup_score POWERUP_SCORE
+                        every N points, the player has a chance to be awarded
+                        a powerup (see --powerup_chance)
+  --death_penalty DEATH_PENALTY
+                        how many points are taken from the player for dying.
+
+theme settings:
+  modify generic theme settings
+
+  -t THEME, --theme THEME
+                        change the theme of the game.
+  -s, --disable_stars   disable parallax stars effect
+  -b, --enable_background
+                        enable a parallax bg effect
+  --bg_speed BG_SPEED   background scroll speed
+  --title_bg_color COLOR NAME
+                        title background color
+  --game_bg_color COLOR NAME
+                        game background color
+  --leaderboard_bg_color COLOR NAME
+                        leaderboard background color
+  --gameover_bg_color COLOR NAME
+                        gameover background color
+
+global text settings:
+  set reoccuring global string colors
+
+  --press_any_key PRESS_ANY_KEY
+                        press any key text
+  --press_any_key_text_color COLOR NAME
+                        press any key text color
+  --continueyn CONTINUEYN
+                        continue game text
+  --continueyn_text_color COLOR NAME
+                        continue game text color
+
+main menu text settings:
+  modify text and text colors of the main menu
+
+  --alt_title ALT_TITLE
+                        give your game an alternative title on the titlescreen
+  --subtitle1 SUBTITLE1
+                        subtitle 1 text
+  --subtitle2 SUBTITLE2
+                        subtitle 2 text
+  --title_text_color COLOR NAME
+                        title text color
+  --subtitle1_text_color COLOR NAME
+                        subtitle 1 text color
+  --subtitle2_text_color COLOR NAME
+                        subtitle 2 text color
+
+in-game text settings:
+  modify in-game text and colors
+
+  --ingame_font_color COLOR NAME
+                        score and lives font color
+
+leaderboard text settings:
+  modify leaderboard text settings
+
+  --victory_text_color COLOR NAME
+                        victory screen text color
+  --victory VICTORY     victory screen text
+
+gameover text settings:
+  game over screen text
+
+  --game_over GAME_OVER
+                        game over text
+  --game_over_text_color COLOR NAME
+                        game over text color
+
+advanced settings:
+  add custom entries to the settings dictionary, and more
+
+  --set_custom_keys SET_CUSTOM_KEYS [SET_CUSTOM_KEYS ...]
+                        add dictionary entries to the game settings entries as
+                        k:v pairs. seperate with spaces
+  --add_custom_assets ADD_CUSTOM_ASSETS [ADD_CUSTOM_ASSETS ...]
+                        add custom assets to the game as k:v pairs. seperate
+                        with spaces
+
+For comments, questions, concerns, inquiries, or any other synonyms of those
+words, contact me at worcesterz@outlook.com.
