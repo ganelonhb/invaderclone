@@ -193,7 +193,7 @@ def main():
 
                 if f'--{line_tuple[0].strip()}' not in raw_args:
                     try:
-                        typecast = type(var_args[line_tuple[0].strip()])
+                        typecast = type(var_args[line_tuple[0].strip()]) if var_args[line_tuple[0].strip()] is not None else str
                         lt_strplo = None if typecast is not bool else line_tuple[1].strip().lower()
 
                         skip = typecast is list
@@ -212,7 +212,10 @@ def main():
 
                             val = typecast(line_tuple[1])
                         else:
-                            val = typecast(line_tuple[1].strip())
+                            if typecast is None:
+                                val = str(line_tuple[1].strip())
+                            else:
+                                val = typecast(line_tuple[1].strip())
 
                         if not skip:
                             var_args[line_tuple[0].strip()] = val
