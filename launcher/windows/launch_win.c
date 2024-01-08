@@ -26,6 +26,7 @@
 #define COULDNOTOPENPROCCESS -4
 
 #define UNICODE 1
+#define __unused__(x) (void)(x)
 
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int cmdShow) {
     //construct a string to execute the creation of an env
@@ -38,6 +39,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int 
             execDir,
             FILENAMEBUFFER
         );
+        __unused__(returnGetModuleFileName);
 
         for (int i = FILENAMEBUFFER - 1; i >= 0; --i){
             if (execDir[i] == '\\')
@@ -54,6 +56,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int 
             PATH,
             PATHBUFFER
         );
+        __unused__(retGetPath);
 
         stringlist_t path = splitString(PATH, ';');
 
@@ -82,13 +85,15 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int 
                         "Consent Not Granted! Sorry :(",
                         MB_OK | MB_ICONEXCLAMATION
                     );
+                    __unused__(mbGoodBye);
+                    freeStringList(path);
                     free(pythonPath);
 
                     return 0;
                 }
 
             }
-
+            freeStringList(path);
             free(pythonPath);
         }
         else
@@ -99,6 +104,10 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int 
                 "ERROR",
                 MB_OK | MB_ICONEXCLAMATION
             );
+            __unused__(mbErr);
+
+            freeStringList(path);
+            return -1;
         }
 
         freeStringList(path);
@@ -113,17 +122,19 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int 
             "Installing... Please Wait",
             MB_OK | MB_ICONQUESTION
         );
+        __unused__(mbInst);
     }
 
-    DWORD err = Win32ApiCreateProcess("gamedata\\env\\Scripts\\python.exe -m pip install --quiet --upgrade pip invaderclone");
+    DWORD err = Win32ApiCreateProcess("gamedata\\env\\Scripts\\python.exe -m pip install --upgrade pip invaderclone");
 
     char* command = CreateCommandString("gamedata\\env\\Scripts\\python.exe -m invaders", lpCmdLine);
 
     err = Win32ApiCreateProcess(command);
-    if (err)
-        return err;
 
     free(command);
+
+    if (err)
+        return err;
 
     return 0;
 }

@@ -29,8 +29,6 @@ int main(int argc, char** argv)
 	}
 	else if (ENOENT == errno)
 	{
-		closedir(dir);
-
 		int answer = manylinuxNotify("Confirm Operation", "In order to run the game, some python requirements need to be downloaded.\nMake sure you are both connected to the internet, and okay with this.\nIf you are okay with the requirements being downloaded, hit \"yes.\"\n", true);
 
 		fflush(stdout);
@@ -87,7 +85,6 @@ int main(int argc, char** argv)
 
 	}
 	else {
-		closedir(dir);
 
 		// Check if python virtual env could be launched, and notify the user + exit if not.
 		manylinuxNotify("ERROR", "Failed to open the python virtual env. You may not have permissions to this folder.", false);

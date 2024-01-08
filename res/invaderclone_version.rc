@@ -1,0 +1,23 @@
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName", "Kill the Bull"
+            VALUE "FileDescription", "Moddable Space Invaders clone"
+            VALUE "FileVersion", "1.1"
+            VALUE "InternalName", "invaderclone_launcher"
+            VALUE "LegalCopyright", "Invader Clone Launcher"
+            VALUE "OriginalFilename", "InvaderClone.exe"
+            VALUE "ProductName", "Invader Clone Launcher"
+            VALUE "ProductVersion", "1.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

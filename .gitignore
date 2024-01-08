@@ -10,3 +10,4 @@ gamedata/dist_archive/
 gamedata/README.md
 gamedata/__pycache__/
 *.swp
+RELEASE/

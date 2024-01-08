@@ -4,19 +4,21 @@ GCC	= gcc
 WCC	= x86_64-w64-mingw32-gcc
 LFL	= ./launcher/linux/*.c
 WFL	= ./launcher/windows/*.c
-LFLGS	= -O2 -DNDEBUG -s
+WRC	= ./launcher/windows/*.res
+LFLGS	= -O3 -DNDEBUG -Wall
+WFLGS	= -O3 -DNDEBUG -s -Wall -mwindows
 NAME	= InvaderClone
 
 # ----------------------------------------------------
 
 linux:
-	$(GCC) $(LFL) -o $(NAME)
+	$(GCC) $(LFL) $(LFLGS) -o $(NAME)
 
 windows:
-	 $(WCC) $(WFL) -o $(NAME).exe -mwindows
+	 $(WCC) $(WFL) $(WRC) $(WFLGS) -o $(NAME).exe
 
 debug_make_to_vm:
-	$(WCC) $(WFL) -o /home/donquixote/VMs/windows/$(NAME).exe -mwindows
+	$(WCC) $(WFL) $(WRC) $(WFLGS) -o /home/donquixote/VMs/windows/$(NAME).exe
 
 clean:
 	rm -rf ./data/env
