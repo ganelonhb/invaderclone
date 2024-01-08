@@ -1,6 +1,6 @@
 # Invader Clone
 
-[![PyPI](https://img.shields.io/badge/PyPI-v0.9.0-blue.svg)](https://pypi.org/project/invaderclone/) [![GitHub](https://img.shields.io/badge/GitHub-v0.9.0-purple.svg)](https://github.com/ganelonhb/invaderclone)
+[![PyPI](https://img.shields.io/badge/PyPI-v0.9.5-blue.svg)](https://pypi.org/project/invaderclone/) [![GitHub](https://img.shields.io/badge/GitHub-v0.9.5-purple.svg)](https://github.com/ganelonhb/invaderclone)
 
 ## Project Description
 
@@ -17,7 +17,7 @@ There are two planned options for the installation of Invader Clone. You can ins
 ### Pip
 
 To install using pip, use the following command:
-
+i
 `pip install invaderclone`
 
 If your system package manager manages your python packages, you can instead use the following command (PLEASE READ THE WARNING BELOW\*\*\*):
