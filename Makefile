@@ -5,7 +5,7 @@ WCC	= x86_64-w64-mingw32-gcc
 LFL	= ./launcher/linux/*.c
 WFL	= ./launcher/windows/*.c
 WRC	= ./launcher/windows/*.res
-LFLGS	= -O3 -DNDEBUG -Wall
+LFLGS	= -O3 -DNDEBUG -s -Wall
 WFLGS	= -O3 -DNDEBUG -s -Wall -mwindows
 NAME	= InvaderClone
 
