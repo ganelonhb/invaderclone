@@ -11,3 +11,4 @@ gamedata/README.md
 gamedata/__pycache__/
 *.swp
 RELEASE/
+default.args
