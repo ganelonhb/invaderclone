@@ -3,6 +3,7 @@
 import pygame
 
 import threading
+import time
 
 from random import randint, choice, randrange, uniform
 
@@ -55,6 +56,7 @@ class Level0(Scene):
         self._lives_surface_p2 = None
         self._life_picture = None
         self._life_picture_p2 = None
+        self._lastshot = 0
 
         self.update_settings()
 
@@ -407,8 +409,10 @@ class Level0(Scene):
             self.spawn_obstacle()
 
         self._player.update()
+        self.player_shoot(self._player)
         if self._player2:
             self._player2.update()
+            self.player_shoot(self._player2)
 
         for obstacle in self._obstacles:
             obstacle.update()
@@ -503,7 +507,7 @@ class Level0(Scene):
                     collidelist = [self._player.rect] if self._player2 is None else [self._player.rect, self._player2.rect]
                     fire_at_player = (1) if enemy.below_rect.collidelist(collidelist) < 0 else (10 * self._difficulty_mod)
 
-                    if randint(0, 10001) < min(20 * self._difficulty_mod + fire_at_player, 6667):
+                    if randint(0, 10001) < min(20 * self._difficulty_mod + fire_at_player, 3333):
                         (_, height) = self._screen.get_size()
 
                         newpos = pygame.math.Vector2(
@@ -541,21 +545,17 @@ class Level0(Scene):
                 if powup in self._powerups:
                     self._powerups.remove(powup)
 
-    def player_move(self, player, joystick, event):
-        try:
-            if player is not None and not player.is_dead:
-                if (
-                    (event.type == pygame.KEYDOWN
-                    and event.key == pygame.K_SPACE)
-                    or
-                    (event.type == pygame.JOYBUTTONDOWN
-                    and (event.button == 0
-                    or event.button == 7
-                    or event.button == 6)
-                    and event.instance_id == self._joysticks[joystick].get_instance_id()
-                    )
+    def player_shoot(self, player, override=False):
+        if player is not None and not player.is_dead:
+            keys = pygame.key.get_pressed()
 
+            current_time = int((time.time() - self._timestart) * 1000)
+            if (override
+                or (keys[pygame.K_SPACE]
+                    and current_time % 250 < 125
+                    and current_time - self._lastshot >= 250)
                 ):
+                    self._lastshot = int((time.time() - self._timestart) * 1000)
                     match (player.powerup):
                         case "burst":
                             (_, height) = self._screen.get_size()
@@ -589,6 +589,25 @@ class Level0(Scene):
                             self._bullets.append(
                                 bullets.PlayerBullet(newpos, bullet_target, velocity, bullet_asset)
                             )
+
+
+    def player_move(self, player, joystick, event):
+        try:
+
+            if player is not None and not player.is_dead:
+                if (
+                    (
+                    event.type == pygame.KEYDOWN
+                    and event.key == pygame.K_SPACE
+                    or event.type == pygame.JOYBUTTONDOWN
+                    and (event.button == 0
+                    or event.button == 7
+                    or event.button == 6)
+                    and event.instance_id == self._joysticks[joystick].get_instance_id()
+                    )
+
+                ):
+                    self.player_shoot(player, override=True)
 
                 if self._joysticks:
                     axis = self._joysticks[joystick].get_axis(0)

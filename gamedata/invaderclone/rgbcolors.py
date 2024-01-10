@@ -1,7 +1,7 @@
 """A list of RGB colors produced by X11's showrgb command. The color database
     is probably from an IRIX system circa 2005"""
 
-from pygame import Color
+from pygame.color import Color
 
 
 def _clamp(val: int, min_value=0, max_value=255) -> int:

@@ -6,7 +6,7 @@ X Finish implementing various text color changes, etc
 X argument groups for argparse
 X Themes can have arguments
 X CLI args get string quotes to be passed to python version... make my brain hurty hurty
-- Finish Windows version (maybe recycle CLI code above?)
+X Finish Windows version (maybe recycle CLI code above?)
 X Every scene object takes a game_settings arg instead of passing everything around
 X Redo scene graph implementation
 X Replace Explosion with normal sprite
@@ -14,11 +14,21 @@ X README.md
 X upload to pypi
 
 version 1.0:
-- modify launchers to auto-update based on pypi version of invaderclone package (users should never have to download a new exe)
+X hold-to-shoot (playtester suggestion)
+X cap bullet speed to lower rate (playtester suggestion)
+- fix speed switch not carrying over
+- a and d movement (playtester suggestion)
+- custom themes can be discovered in a folder in CWD
+- custom levels can be discovered in themes
+- before checking for theme args, check to see if a theme is selected in default.args (fix broken theme when set in default)
+- if theme not discovered, print warning and use default
+X modify launchers to auto-update based on pypi version of invaderclone package (users should never have to download a new exe)
+THEN:
 - release on itch.io
 
 version 1.1:
 - modify leaderboard to include name entry
+- add backgrounds to all title scenes
 - Completely refactor and relint the codebase:
     - __init__.py
     - animation.py -> explosion.py
@@ -39,3 +49,7 @@ version 1.1:
     - fleet
 - toggle powerups in args
 - release on arch AUR as python-invaderclone
+
+version 1.5:
+- add opening cutscene
+- add menu to main screen (change some of the settings???)

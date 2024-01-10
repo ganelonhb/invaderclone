@@ -1,9 +1,5 @@
 """implement an enemy ship"""
-
 import pygame
-
-# import rgbcolors
-
 
 # pylint: disable=too-many-instance-attributes
 class EnemyShip:
