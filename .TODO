@@ -15,9 +15,9 @@ X upload to pypi
 
 version 1.0:
 X hold-to-shoot (playtester suggestion)
-X cap bullet speed to lower rate (playtester suggestion)
-- fix speed switch not carrying over
-- a and d movement (playtester suggestion)
+- cap enemy and asteroid speeds lower and `bullet speed to lower rate (playtester suggestion)
+X fix speed switch not carrying over
+X a and d movement (playtester suggestion)
 - custom themes can be discovered in a folder in CWD
 - custom levels can be discovered in themes
 - before checking for theme args, check to see if a theme is selected in default.args (fix broken theme when set in default)

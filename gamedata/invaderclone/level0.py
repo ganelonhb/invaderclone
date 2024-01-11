@@ -269,7 +269,7 @@ class Level0(Scene):
             Obstacle(
                 position,
                 obstacle_target,
-                min(self._obstacle_speed * self._difficulty_mod, 35),
+                min(self._obstacle_speed * self._difficulty_mod, 15),
                 self._obstacle_list[obstacle_choice]
                 )
             )
@@ -343,13 +343,15 @@ class Level0(Scene):
         enemy_size = self._screen.get_height() // ENEMY_SIZE_MODIFIER
 
         gutter_width = enemy_size // 8
-        width, _ = self._screen.get_size()
+        width, height = self._screen.get_size()
         x_step = gutter_width + enemy_size
         y_step = gutter_width + enemy_size
-        enemies_per_row = self._num_cols + int(self._difficulty_mod) - 1
-        num_rows = self._num_rows + int(self._difficulty_mod) - 1
-        #print(f"There will be {num_rows} rows and {enemies_per_row} columns")
 
+        max_cols = (int(width * .45) // (x_step)) - 1
+        max_rows = (int(height * .33) // (y_step)) - 1
+
+        enemies_per_row = min(self._num_cols + int(self._difficulty_mod) - 1, max_cols)
+        num_rows = min(self._num_rows + int(self._difficulty_mod) - 1,  max_rows)
         enemy_kind = 0
 
         for i in range(num_rows):
@@ -360,7 +362,7 @@ class Level0(Scene):
                     ),
                     self._screen,
                     self._enemy_list[enemy_kind],
-                    self._enemy_speed * self._difficulty_mod
+                    min(self._enemy_speed * self._difficulty_mod, 10)
                 ))
             if (enemy_kind + 1) < numem:
                 enemy_kind += 1
@@ -405,7 +407,7 @@ class Level0(Scene):
         super().update_scene()
 
         spawn_obstacle_uniform = uniform(0, 101)
-        if spawn_obstacle_uniform < min(13.33, self._obstacle_chance + (self._difficulty_mod - 1.)):
+        if spawn_obstacle_uniform < min(1., self._obstacle_chance + (self._difficulty_mod - 1.)):
             self.spawn_obstacle()
 
         self._player.update()
@@ -507,7 +509,7 @@ class Level0(Scene):
                     collidelist = [self._player.rect] if self._player2 is None else [self._player.rect, self._player2.rect]
                     fire_at_player = (1) if enemy.below_rect.collidelist(collidelist) < 0 else (10 * self._difficulty_mod)
 
-                    if randint(0, 10001) < min(20 * self._difficulty_mod + fire_at_player, 3333):
+                    if randint(0, 10001) < min(20 * self._difficulty_mod + fire_at_player, 70):
                         (_, height) = self._screen.get_size()
 
                         newpos = pygame.math.Vector2(
@@ -521,7 +523,8 @@ class Level0(Scene):
         if self._inc_pos_idx:
             if not self._speedupswitch:
                 for enemy in self._enemies:
-                    enemy.inc_speed(0.5 * self._difficulty_mod)
+                    if enemy.speed <= 10:
+                        enemy.inc_speed(min(0.5 * self._difficulty_mod, 2))
 
             self._speedupswitch = (self._speedupswitch + 1) % 8
             self._pos_idx = (self._pos_idx + 1) % 4
@@ -639,13 +642,13 @@ class Level0(Scene):
             t1 = threading.Thread(target=self.player_move, args=(self._player, 0, event))
             t2 = threading.Thread(target=self.player_move, args=(self._player2, 1, event))
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+            if event.type == pygame.KEYDOWN and (event.key == pygame.K_LEFT or event.key == pygame.K_a):
                 self._player.move_left()
-            elif event.type == pygame.KEYUP and event.key == pygame.K_LEFT:
+            elif event.type == pygame.KEYUP and (event.key == pygame.K_LEFT or event.key == pygame.K_a):
                 self._player.stop()
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+            elif event.type == pygame.KEYDOWN and (event.key == pygame.K_RIGHT or event.key == pygame.K_d):
                 self._player.move_right()
-            elif event.type == pygame.KEYUP and event.key == pygame.K_RIGHT:
+            elif event.type == pygame.KEYUP and (event.key == pygame.K_RIGHT or event.key == pygame.K_d):
                 self._player.stop()
 
             t1.start()

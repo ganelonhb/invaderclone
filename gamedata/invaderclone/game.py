@@ -107,6 +107,16 @@ class InvaderClone(VideoGame):
             self._level_classes[class_name] = getattr(sys.modules[f"invaderclone.{module_name}"], class_name)
         self.build_scene_graph()
 
+    def initialize_levels(self):
+        for level_name, LevelClass in self._level_classes.items():
+            self._scene_dict[level_name] = LevelClass(self._screen, self._game_settings)
+
+            if not isinstance(self._scene_dict[level_name], Scene):
+                raise TypeError
+
+    def reinitialize_levels(self):
+        self.initialize_levels()
+
     def build_scene_graph(self):
         """Build scene graph for the game demo."""
 
@@ -126,11 +136,7 @@ class InvaderClone(VideoGame):
                 )
         }
 
-        for level_name, LevelClass in self._level_classes.items():
-            self._scene_dict[level_name] = LevelClass(the_screen, self._game_settings)
-
-            if not isinstance(self._scene_dict[level_name], Scene):
-                raise TypeError
+        self.initialize_levels()
 
     def run(self):
         """Run the game; the main game loop."""
@@ -143,8 +149,8 @@ class InvaderClone(VideoGame):
             current_scene = scene_iterator[current_scene_string]
             current_scene.clock()
             current_scene.start_scene()
-            current_scene.update_settings()
             reference_settings = deepcopy(self._game_settings)
+            current_scene.update_settings()
 
             while current_scene.is_valid():
                 self._clock.tick(current_scene.frame_rate())
@@ -170,22 +176,22 @@ class InvaderClone(VideoGame):
                         current_level = 0
 
                     game_settings = self._game_settings
-
                     dm = game_settings["current_difficulty_modifier"] + (game_settings["difficulty_step"] / 100)
 
                     game_settings["current_difficulty_modifier"] = dm
 
                     current_scene_string = f"Level{current_level}"
                 case ['RST_CHANGE_SCENE', scene_name]:
-                    game_settings = self._game_settings
-                    game_settings["current_difficulty_modifier"] = 1.0
-                    game_settings["current_score_p1"] = 0
-                    game_settings["current_score_p2"] = 0
-                    game_settings["current_lives_p1"] = deepcopy(game_settings["starting_lives"])
-                    game_settings["current_lives_p2"] = deepcopy(game_settings["starting_lives"])
-                    game_settings["oneups"] = []
+                    self._game_settings["current_difficulty_modifier"] = 1.0
+                    self._game_settings["current_score_p1"] = 0
+                    self._game_settings["current_score_p2"] = 0
+                    self._game_settings["current_lives_p1"] = game_settings["starting_lives"]
+                    self._game_settings["current_lives_p2"] = game_settings["starting_lives"]
+                    self._game_settings["oneups"] = []
 
                     current_level = 0
+
+                    self.reinitialize_levels()
 
                     current_scene_string = scene_name
         pygame.quit()

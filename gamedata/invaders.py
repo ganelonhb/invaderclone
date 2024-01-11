@@ -242,7 +242,7 @@ def main():
     for setting in args.set_custom_keys:
         if setting not in game_settings.keys():
             if ':' not in setting:
-                game_settings["setting"] = None
+                game_settings[setting] = None
             else:
                 k, v = setting.split(':', 1)
                 v = v.replace('\{theme_dir\}', get_theme_dir(args.theme))

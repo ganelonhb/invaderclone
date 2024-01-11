@@ -18,6 +18,7 @@ class Player:
         self._invincible = 0
         self._sprite = character
         self._speed = player_speed
+        self._moving = False
 
         self._powerup = None
         self._powerup_timer = 0
@@ -102,6 +103,10 @@ class Player:
         self._position = value
 
     @property
+    def moving(self):
+        return self._moving
+
+    @property
     def rect(self):
         """get the rect"""
 
@@ -112,10 +117,12 @@ class Player:
 
     def stop(self):
         """Stop the player"""
+        self._moving = False
         self._velocity = pygame.math.Vector2(0, 0)
 
     def move_left(self, axis_mult=1):
         """Move the player character left"""
+        self._moving = True
         speed = -int(self._speed * abs(axis_mult) + 0.5)
         if speed > -1:
             speed = -1
@@ -123,6 +130,7 @@ class Player:
 
     def move_right(self, axis_mult=1):
         """Move the player character right"""
+        self._moving = True
         speed = int(self._speed * abs(axis_mult) + 0.5)
         if speed < 1:
             speed = 1
