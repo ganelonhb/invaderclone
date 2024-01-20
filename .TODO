@@ -15,41 +15,41 @@ X upload to pypi
 
 version 1.0:
 X hold-to-shoot (playtester suggestion)
-- cap enemy and asteroid speeds lower and `bullet speed to lower rate (playtester suggestion)
+- cap enemy and asteroid speeds lower and bullet speed to lower rate (playtester suggestion)
 X fix speed switch not carrying over
 X a and d movement (playtester suggestion)
+X modify launchers to auto-update based on pypi version of invaderclone package (users should never have to download a new exe)
+THEN:
+- generate a game cover
+- review all necessary documentation
+- release on itch.io
+
+version 1.1:
 - custom themes can be discovered in a folder in CWD
 - custom levels can be discovered in themes
 - before checking for theme args, check to see if a theme is selected in default.args (fix broken theme when set in default)
 - if theme not discovered, print warning and use default
-X modify launchers to auto-update based on pypi version of invaderclone package (users should never have to download a new exe)
-THEN:
-- release on itch.io
 
-version 1.1:
-- modify leaderboard to include name entry
-- add backgrounds to all title scenes
-- Completely refactor and relint the codebase:
-    - __init__.py
-    - animation.py -> explosion.py
-    - assets.py -> theme.py
-    X asteroid.py -> X
-    - bullets.py
-    - enemy.py
-    - game.py !!!
-    - leaderboard.py
-    - player.py
-    - powerup.py
-    - rgbcolors.py
-    - scene.py !!!
-    - setup.py
-    - obstacle.py
+version 1.2:
+- deprecate old player object. Replace with player simplemove
+- Controls can be edited using cli switch
+
+version 1.3:
+- obstacles and bullets sizes are determined by resolution
+- add optional picture backgrounds to all title scenes
+
+version 1.4:
+- Completely refactor and relint the codebase as it currently stands
+
+version 1.5:
 - add more powerups:
     - invincibility
     - fleet
 - toggle powerups in args
 - release on arch AUR as python-invaderclone
 
-version 1.5:
+version 1.6:
+- modify leaderboard to include name entry
 - add opening cutscene
 - add menu to main screen (change some of the settings???)
+- add level1 (sample level) to default theme. level1 occurs every time the score reaches N

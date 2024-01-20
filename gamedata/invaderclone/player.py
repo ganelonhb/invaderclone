@@ -57,7 +57,7 @@ class Player:
 
         if self._powerup_timer + self._powerup_max < time.time():
             self._powerup = None
-            self._powerup_time = 0
+            self._powerup_timer = 0
             self._powerup_max = 0
             return False
 

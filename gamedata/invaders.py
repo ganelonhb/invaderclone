@@ -6,6 +6,8 @@ import sys
 import os
 import argparse
 
+import pygame
+
 from copy import deepcopy
 # pylint: disable=import-error
 from invaderclone.game import InvaderClone
@@ -228,6 +230,16 @@ def main():
                         sys.exit(-1)
 
     game_settings = deepcopy(dict(vars(args)))
+
+    controls = {
+        "up_keys" : [pygame.K_UP, pygame.K_a],
+        "down_keys" : [pygame.K_DOWN, pygame.K_s],
+        "left_keys" : [pygame.K_LEFT, pygame.K_a],
+        "right_keys" : [pygame.K_RIGHT, pygame.K_d],
+        }
+
+    #DELETE
+    game_settings["controls"] = controls
 
     # Modify Game Settings
     game_settings["default_bg"] = cd["black"]

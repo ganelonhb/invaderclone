@@ -1,6 +1,6 @@
 # Invader Clone
 
-[![PyPI](https://img.shields.io/badge/PyPI-v0.9.5-blue.svg)](https://pypi.org/project/invaderclone/) [![GitHub](https://img.shields.io/badge/GitHub-v0.9.5-purple.svg)](https://github.com/ganelonhb/invaderclone)
+[![PyPI](https://img.shields.io/badge/PyPI-v1.0.0-blue.svg)](https://pypi.org/project/invaderclone/) [![GitHub](https://img.shields.io/badge/GitHub-v1.0.0-purple.svg)](https://github.com/ganelonhb/invaderclone)
 
 ## Project Description
 
